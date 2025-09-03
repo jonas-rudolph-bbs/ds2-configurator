@@ -1,0 +1,19 @@
+:host {
+  --content-padding: 10px;
+}
+header {
+  display: block;
+  height: 100px;
+  padding: var(--content-padding);
+  background: var(--secondary-background-color);
+  border-width: 0 0 5px 0;
+  border-color: var(--primary-color);
+  border-style: solid;
+}
+.content {
+  padding: var(--content-padding);
+}
+
+.ds2-logo {
+  height: 80px;
+}
