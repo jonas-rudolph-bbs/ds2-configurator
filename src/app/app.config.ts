@@ -1,13 +1,12 @@
-/*!
- * @license
- * Copyright Google LLC All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.dev/license
- */
-
-import {ApplicationConfig} from '@angular/core';
+// src/app/app.config.ts
+import { ApplicationConfig } from '@angular/core';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import routes from './routes';
 
 export const appConfig: ApplicationConfig = {
-  providers: [],
+  providers: [
+    provideRouter(routes, withComponentInputBinding()),
+    provideHttpClient(), // ← required for HttpClient-based services
+  ],
 };

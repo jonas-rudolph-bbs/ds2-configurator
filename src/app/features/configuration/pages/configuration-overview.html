@@ -20,14 +20,21 @@
             <td>{{ id }}</td>
             <td class="text-end">
               <a class="btn btn-link text-decoration-none me-2"
-                 [routerLink]="['/configs/validation', id]">
+                 [routerLink]="['/details/1']">
                 Details
               </a>
             </td>
           </tr>
         }
       }
+      <tr>
+        <td>ID</td>
+        <td class="text-end">
+          <a class="btn btn-link text-decoration-none me-2"
+              [routerLink]="['/configs/validation', 'ID']"          
+          > Details </a>
+        </td>
+      </tr>
     </tbody>
   </table>
 </div>
-
