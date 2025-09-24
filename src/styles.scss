@@ -1,0 +1,99 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import "bootstrap/scss/bootstrap";
+
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --primary-color: #128F8B;
+  --primary-color-hover: #0C6361;
+  --secondary-color: #24D4C6;
+  --secondary-color-hover: #21C2B5;
+  --primary-background-color: #FFFFFF;
+  --secondary-background-color: #E0E0E0;
+  --third-background-color: #F5F5F5;
+  --text-color: #000000;
+  --seondary-text-color: #757575;
+  --hint-text-color: #9b9b9b;
+  --error-color: #EA6B66;
+  --button-text-color: #FFFFFF;
+  --border-color: #757575;
+  --accent-color: #e8e7fa;
+  --shadow-color: #E8E8E8;
+}
+
+
+body {
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.btn-ds2 {
+  @extend .btn;
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--button-text-color);
+
+  &:hover {
+    background-color: var(--primary-color-hover);
+    border-color: var(--primary-color-hover);
+    color: var(--button-text-color);
+  }
+}
+
+.card-ds2 {
+  @extend .card;
+  border: 0px;
+  border-radius: 1rem;
+  box-shadow: 0 6px 20px rgba(0,0,0,.08);
+  background-color: var(--secondary-background-color)
+}
+
+.badge-pill {
+  @extend .badge;
+  border-radius: 10rem;
+  
+}
+
+/* === Sidebar nav (slight tweaks) === */
+/* Scope to your sidebar wrapper to avoid global changes */
+.nav-ds2 {
+  background-color: var(--third-background-color);
+  .nav.nav-pills {
+    .nav-link {
+      background: transparent !important;     // keep background off
+      color: var(--bs-gray-600);   // subtle gray tone
+      border-radius: 0;            // crisp edges; remove if you prefer rounded
+      font-weight: 500;            // normal weight
+
+      &:hover,
+      &:focus {
+        background: transparent;   // still no background on hover/focus
+        color: var(--bs-gray-700); // a touch darker on hover
+        text-decoration: none;
+        box-shadow: none;
+      }
+
+      &.active,
+      &.active:focus,
+      &.active:hover {
+        background: transparent !important; // ensure no fill
+        color: var(--secondary-color) !important;
+        font-weight: 700;                   // “thicker” text
+        box-shadow: none;
+      }
+    }
+  }
+}
+
+/* Optional: subtle active indicator bar without a background fill.
+   Comment out if you want text-only. */
+.nav-ds2 .nav.nav-pills .nav-link.active {
+  border-left: .25rem solid var(--bs-secondary);
+  margin-left: -.25rem;                 // keep text aligned
+  padding-left: calc(1rem - .25rem);    // compensate for the bar
+}
+

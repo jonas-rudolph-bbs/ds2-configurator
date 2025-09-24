@@ -1,22 +1,11 @@
-import {Component} from '@angular/core';
-import {Home} from './home/home';
+import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { Ds2Header } from './shared/components/ds2-header';
 
 @Component({
   selector: 'app-root',
-  imports: [Home, RouterModule],
-  template: `
-    <main>
-      <a [routerLink]="['/']">
-        <header class="brand-name">
-          <img class="ds2-logo" src="/assets/ds2-logo.png" alt="DS2 logo" aria-hidden="true" />
-        </header>
-      </a>
-      <section class="content">
-        <router-outlet></router-outlet>
-      </section>
-    </main>
-  `,
+  imports: [RouterModule, Ds2Header],
+  templateUrl: './app.html',
   styleUrls: ['./app.css'],
 })
 export class App {

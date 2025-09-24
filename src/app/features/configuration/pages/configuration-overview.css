@@ -38,3 +38,33 @@ button {
       grid-template-columns: 1fr;
   }    
 }
+
+
+/* Keep your global variables; this styles the table to match the app */
+
+.ds2-table {
+  border: 1px solid var(--shadow-color);
+  border-radius: 12px;
+  overflow: hidden;              /* keep rounded corners on thead */
+}
+
+.ds2-table thead {
+  background: var(--secondary-background-color);
+  border-bottom: 4px solid var(--primary-color); /* subtle accent like header */
+}
+
+.btn-ds2 {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--button-text-color);
+  border-radius: 8px;
+}
+.btn-ds2:hover {
+  background: var(--primary-color-hover);
+  border-color: var(--primary-color-hover);
+}
+
+/* Optional: tighter hover for rows */
+.ds2-table tbody tr:hover {
+  background: #f8f9fa;
+}

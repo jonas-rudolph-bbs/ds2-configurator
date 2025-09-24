@@ -1,0 +1,40 @@
+<div class="container-fluid h-100">
+  <div class="row h-100">
+    <!-- Sidebar: sticky below the header, gets its own scroll if needed -->
+    <nav
+      class="col-2 nav-ds2 position-sticky pt-3 px-2"
+      style="
+        top: var(--ds2-header-h, 64px);
+        height: calc(100vh - var(--ds2-header-h, 64px));
+      "
+    >
+      <ul class="nav nav-pills flex-column">
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            routerLink="/configurations"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            Configurations
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            routerLink="/details/1"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            About
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Main: fill remaining height and be the scrolling area -->
+    <main class="col-10 px-4 pt-3 h-100 overflow-auto">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

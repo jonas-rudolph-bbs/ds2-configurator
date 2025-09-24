@@ -1,0 +1,13 @@
+header {
+  display: block;
+  height: 120px;
+  padding: var(--content-padding);
+  background: var(--secondary-background-color);
+  border-width: 0 0 5px 0;
+  border-color: var(--primary-color);
+  border-style: solid;
+}
+
+.ds2-logo {
+  height: 80px;
+}

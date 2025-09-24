@@ -1,0 +1,33 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="m-0">Configurations</h2>
+  <!-- optional “add” action -->
+  <a class="btn btn-ds2" routerLink="/locations/new">Add configuration</a>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-hover align-middle mb-0 ds2-table">
+    <thead class="table-light">
+      <tr>
+        <th scope="col">ValidationState ID</th>
+        <th scope="col" class="text-end">Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      @if (ids$ | async; as ids) {
+        @for (id of ids; track id) {
+          <tr>
+            <td>{{ id }}</td>
+            <td class="text-end">
+              <a class="btn btn-link text-decoration-none me-2"
+                 [routerLink]="['/configs/validation', id]">
+                Details
+              </a>
+            </td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>
+
