@@ -1,0 +1,29 @@
+.attribute-input-ds2 {
+    width: 200px;
+}
+
+.rule-dropdown-ds2 {
+    border-radius: 1.5rem;
+    background-color: var(--secondary-color);
+    color: var(--button-text-color-hover);
+    border: none;
+    width: 350px;
+}
+
+.handler-dropdown-ds2 {
+    border-radius: 0.8rem;
+    background-color: grey;
+    color: white;
+    font-size: .75rem;
+    font-weight: bold;
+
+    border: none;
+    width: 200px;
+}
+
+.params-input-ds2 {
+    font-size: 0.775em; /* slightly smaller */
+  color: var(--bs-code-color); /* often a reddish tone */
+  word-wrap: break-word;
+  font-family: var(--bs-font-monospace);
+}

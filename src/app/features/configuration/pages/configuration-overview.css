@@ -16,14 +16,6 @@ input[type="text"] {
   width: 30%;
 }
 
-button {
-  padding: 10px;
-  border: solid 1px var(--primary-color);
-  background: var(--primary-color);
-  color: white;
-  border-radius: 8px;
-}
-
 @media (min-width: 500px) and (max-width: 768px) {
   .results {
       grid-template-columns: repeat(2, 1fr);
@@ -53,16 +45,6 @@ button {
   border-bottom: 4px solid var(--primary-color); /* subtle accent like header */
 }
 
-.btn-ds2 {
-  background: var(--primary-color);
-  border-color: var(--primary-color);
-  color: var(--button-text-color);
-  border-radius: 8px;
-}
-.btn-ds2:hover {
-  background: var(--primary-color-hover);
-  border-color: var(--primary-color-hover);
-}
 
 /* Optional: tighter hover for rows */
 .ds2-table tbody tr:hover {

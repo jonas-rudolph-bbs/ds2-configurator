@@ -44,12 +44,35 @@ body {
   }
 }
 
+.btn-outline-ds2 {
+  @extend .btn-outline-primary;
+  background-color: transparent;
+  border-color: var(--border-color);
+  color: var(--border-color);
+
+  &:hover {
+    background-color: var(--primary-color-hover);
+    border-color: var(--primary-color-hover);
+    color: var(--button-text-color);
+  }
+}
+
 .card-ds2 {
   @extend .card;
   border: 0px;
   border-radius: 1rem;
   box-shadow: 0 6px 20px rgba(0,0,0,.08);
   background-color: var(--secondary-background-color)
+}
+
+.form-control-ds2  {
+  @extend .form-control;
+  border: 1px solid var(--border-color);
+  border-radius: .2rem;
+  &:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 .2rem rgba(18, 143, 139, .25);
+  }
 }
 
 .badge-pill {
@@ -95,5 +118,28 @@ body {
   border-left: .25rem solid var(--bs-secondary);
   margin-left: -.25rem;                 // keep text aligned
   padding-left: calc(1rem - .25rem);    // compensate for the bar
+}
+
+.list-group-ds2{
+  @extend .list-group;
+  .list-group-item{
+    border:0;
+    border-radius:0;
+    &:hover{
+      background-color: var(--accent-color);
+      color: var(--primary-color);
+      cursor: pointer;
+    }
+    &.active{
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      color: var(--button-text-color);
+      &:hover{
+        background-color: var(--primary-color-hover);
+        border-color: var(--primary-color-hover);
+        color: var(--button-text-color);
+      }
+    }
+  }
 }
 

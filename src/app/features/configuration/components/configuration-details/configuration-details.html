@@ -1,0 +1,41 @@
+<!-- configuration-details.component.html -->
+
+<div class="p-3">
+  @if (topic; as def) {
+
+    @for (entry of def | keyvalue; track entry.key) {
+      <section class="mb-4">
+        <h5 class="mb-0">{{ entry.key }}</h5>
+
+        @if (entry.value.length > 0) {
+          <ol class="list-group">
+            @for (check of entry.value; track $index) {
+              <li class="list-group-item">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <span class="fw-semibold">{{ check.rule }}</span>
+                  <span class="badge bg-secondary">{{ check.handler }}</span>
+                </div>
+
+                @if (check.params) {
+                  <dl class="row small mb-0">
+                    @for (p of check.params | keyvalue; track p.key) {
+                      <dt class="col-sm-4 text-muted">{{ p.key }}</dt>
+                      <dd class="col-sm-8">
+                        <code>{{ p.value }}</code>
+                      </dd>
+                    }
+                  </dl>
+                }
+              </li>
+            }
+          </ol>
+        } @else {
+          <p class="text-muted mb-0">No rules configured for “{{ entry.key }}”.</p>
+        }
+      </section>
+    }
+
+  } @else {
+    <p class="text-muted">Select a topic to see its configuration.</p>
+  }
+</div>

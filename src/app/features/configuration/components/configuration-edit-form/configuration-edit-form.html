@@ -1,0 +1,85 @@
+<!-- configuration-details.component.html -->
+
+<div class="p-3">
+  <form [formGroup]="form">
+    <input
+      class="form-control form-control-ds2 attribute-input-ds2 fw-semibold"
+      formControlName="attName"
+    />
+    <div class="card">
+      <div class="card-body mb-3">
+        <div class="d-flex justify-content-between">
+          <select
+            class="form-select rule-dropdown-ds2 fw-semibold"
+            formControlName="rule"
+          >
+            <option value="" selected>Select rule</option>
+            @for (rule of ruleOptions; track rule) {
+            <option [value]="rule">{{ rule }}</option>
+            }
+          </select>
+          <select class="form-select form-select-sm handler-dropdown-ds2">
+            <option value="" selected>Select handler</option>
+            <option vlaue="1">Smoothing Outlier</option>
+            <option value="2">Timestamp Correction</option>
+            <option value="2">Missing Value Imputation</option>
+          </select>
+        </div>
+        @if (paramKeys.length > 0) {
+          <div class="mt-3" [formGroup]="paramsGroup">
+            @for (paramKey of paramKeys; track paramKey) {
+              <div class="row mb-2">
+                <label
+                  class="form-label small text-muted fw-semibold col mb-0"
+                  [attr.for]="'param-' + paramKey"
+                >
+                  {{ paramKey }}
+                </label>
+
+                <input
+                  class="form-control form-control-ds2 params-input-ds2 form-control-sm col"
+                  [id]="'param-' + paramKey"
+                  [formControlName]="paramKey"
+                  [placeholder]="paramKey"
+                />
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </form>
+  @if (topic; as def) { @for (entry of def | keyvalue; track entry.key) {
+  <section class="mb-4">
+    <h5 class="mb-0">{{ entry.key }}</h5>
+
+    @if (entry.value.length > 0) {
+    <ol class="list-group">
+      @for (check of entry.value; track $index) {
+      <li class="list-group-item">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <span class="fw-semibold">{{ check.rule }}</span>
+          <span class="badge bg-secondary">{{ check.handler }}</span>
+        </div>
+
+        @if (check.params) {
+        <dl class="row small mb-0">
+          @for (p of check.params | keyvalue; track p.key) {
+          <dt class="col-sm-4 text-muted">{{ p.key }}</dt>
+          <dd class="col-sm-8">
+            <code>{{ p.value }}</code>
+          </dd>
+          }
+        </dl>
+        }
+      </li>
+      }
+    </ol>
+    } @else {
+    <p class="text-muted mb-0">No rules configured for “{{ entry.key }}”.</p>
+    }
+  </section>
+  } } @else {
+  <p class="text-muted">Select a topic to see its configuration.</p>
+  }
+</div>

@@ -18,7 +18,10 @@ export type TopicsMap = Record<string, TopicDefinition>;
 export type TopicDefinition = Record<string, RuleSpec[]>;
 
 /** Optional handler names observed in payload */
-export type Handler = 'SmoothingOutliers' | 'RaiseAlarm' | 'TimestampCorrection';
+export type Handler =
+  | "SmoothingOutliers"
+  | "RaiseAlarm"
+  | "TimestampCorrection";
 
 /** Parameter shapes by rule name observed in payload */
 export interface RuleParamsMap {
@@ -38,6 +41,23 @@ export interface RuleParamsMap {
   };
 }
 
+export const RULE_PARAMS_MAP = {
+  expect_column_values_to_not_be_null: {
+    column: "",
+  },
+  expect_column_values_to_be_between: {
+    column: "",
+    min_value: 0,
+    max_value: 0,
+    strict_min: false,
+    strict_max: false,
+  },
+  expect_column_values_to_match_regex: {
+    column: "",
+    regex: "",
+  },
+} satisfies RuleParamsMap;
+
 export type RuleName = keyof RuleParamsMap;
 
 /** One rule instance for an attribute */
@@ -49,6 +69,6 @@ export type RuleSpec<K extends RuleName = RuleName> = {
 
 /** Normalized shape for consumers (array rather than record) */
 export interface ValidationState {
-  id: string;           // key from the "validation" record
-  topics: TopicsMap;    // value stored under that key
+  id: string; // key from the "validation" record
+  topics: TopicsMap; // value stored under that key
 }
