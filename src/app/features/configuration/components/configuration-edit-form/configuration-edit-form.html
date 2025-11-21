@@ -1,85 +1,69 @@
-<!-- configuration-details.component.html -->
+<!-- configuration-edit-form.html -->
 
 <div class="p-3">
-  <form [formGroup]="form">
-    <input
-      class="form-control form-control-ds2 attribute-input-ds2 fw-semibold"
-      formControlName="attName"
-    />
-    <div class="card">
-      <div class="card-body mb-3">
-        <div class="d-flex justify-content-between">
-          <select
-            class="form-select rule-dropdown-ds2 fw-semibold"
-            formControlName="rule"
-          >
-            <option value="" selected>Select rule</option>
-            @for (rule of ruleOptions; track rule) {
-            <option [value]="rule">{{ rule }}</option>
-            }
-          </select>
-          <select class="form-select form-select-sm handler-dropdown-ds2">
-            <option value="" selected>Select handler</option>
-            <option vlaue="1">Smoothing Outlier</option>
-            <option value="2">Timestamp Correction</option>
-            <option value="2">Missing Value Imputation</option>
-          </select>
-        </div>
-        @if (paramKeys.length > 0) {
-          <div class="mt-3" [formGroup]="paramsGroup">
-            @for (paramKey of paramKeys; track paramKey) {
-              <div class="row mb-2">
-                <label
-                  class="form-label small text-muted fw-semibold col mb-0"
-                  [attr.for]="'param-' + paramKey"
-                >
-                  {{ paramKey }}
-                </label>
+  @if (topic; as def) { 
+    @for (entry of def | keyvalue; track entry.key) {
+      <section class="mb-4">
+        @if (getFormsFor(entry.key)?.length) { 
+          @for (fg of getFormsFor(entry.key); track $index) {
+            <form class="card mb-3" [formGroup]="fg">
+              <!-- Attribute name -->
+              <input
+                class="form-control form-control-ds2 attribute-input-ds2"
+                formControlName="attName"
+                aria-label="Attribute name"
+              />
 
-                <input
-                  class="form-control form-control-ds2 params-input-ds2 form-control-sm col"
-                  [id]="'param-' + paramKey"
-                  [formControlName]="paramKey"
-                  [placeholder]="paramKey"
-                />
+              <div class="card-body">
+                <div class="d-flex gap-2 align-items-start">
+                  <!-- Rule -->
+                  <select
+                    class="form-select rule-dropdown-ds2 fw-semibold"
+                    formControlName="rule"
+                    aria-label="Rule"
+                  >
+                    @for (r of rules; track r) {
+                      <option [value]="r.id">{{ r.label }}</option>
+                    }
+                  </select>
+
+                  <!-- Handler (as a real control, disabled by default) -->
+                  <input
+                    class="form-control form-control-sm"
+                    formControlName="handler"
+                    aria-label="Handler"
+                  />
+                </div>
+
+                <!-- Dynamic params -->
+                <div class="mt-3" formGroupName="params">
+                  @for (paramKey of paramKeys(fg); track paramKey) {
+                    <div class="row g-2 align-items-center mb-2">
+                      <label
+                        class="col-sm-4 col-form-label col-form-label-sm text-muted fw-semibold"
+                        [attr.for]="'param-' + entry.key + '-' + $index + '-' + paramKey"
+                      >
+                        {{ paramKey }}
+                      </label>
+                      <div class="col-sm-8">
+                        <input
+                          class="form-control form-control-sm form-control-ds2 params-input-ds2"
+                          [id]="'param-' + entry.key + '-' + $index + '-' + paramKey"
+                          [formControlName]="paramKey"
+                        />
+                      </div>
+                    </div>
+                  }
+                </div>
               </div>
-            }
-          </div>
+            </form>
+          } 
+        } @else {
+          <p class="text-muted mb-0">No rules configured for “{{ entry.key }}”.</p>
         }
-      </div>
-    </div>
-  </form>
-  @if (topic; as def) { @for (entry of def | keyvalue; track entry.key) {
-  <section class="mb-4">
-    <h5 class="mb-0">{{ entry.key }}</h5>
-
-    @if (entry.value.length > 0) {
-    <ol class="list-group">
-      @for (check of entry.value; track $index) {
-      <li class="list-group-item">
-        <div class="d-flex justify-content-between align-items-start mb-2">
-          <span class="fw-semibold">{{ check.rule }}</span>
-          <span class="badge bg-secondary">{{ check.handler }}</span>
-        </div>
-
-        @if (check.params) {
-        <dl class="row small mb-0">
-          @for (p of check.params | keyvalue; track p.key) {
-          <dt class="col-sm-4 text-muted">{{ p.key }}</dt>
-          <dd class="col-sm-8">
-            <code>{{ p.value }}</code>
-          </dd>
-          }
-        </dl>
-        }
-      </li>
-      }
-    </ol>
-    } @else {
-    <p class="text-muted mb-0">No rules configured for “{{ entry.key }}”.</p>
-    }
-  </section>
-  } } @else {
-  <p class="text-muted">Select a topic to see its configuration.</p>
+      </section>
+    } 
+  } @else {
+    <p class="text-muted">Select a topic to see its configuration.</p>
   }
 </div>

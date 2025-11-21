@@ -18,29 +18,15 @@ export type TopicsMap = Record<string, TopicDefinition>;
 export type TopicDefinition = Record<string, RuleSpec[]>;
 
 /** Optional handler names observed in payload */
-export type Handler =
-  | "SmoothingOutliers"
-  | "RaiseAlarm"
-  | "TimestampCorrection";
+export type  Handler = "SmoothingOutliers" | "RaiseAlarm" | "TimestampCorrection";
+
+export const HANDLERS: {id: Handler, label: string}[] = [
+  { id: "SmoothingOutliers", label: "Smoothing Outliers" },
+  { id: "RaiseAlarm", label: "Raise Alarm" },
+  { id: "TimestampCorrection", label: "Timestamp Correction" },
+];
 
 /** Parameter shapes by rule name observed in payload */
-export interface RuleParamsMap {
-  expect_column_values_to_not_be_null: {
-    column: string;
-  };
-  expect_column_values_to_be_between: {
-    column: string;
-    min_value?: number;
-    max_value?: number;
-    strict_min?: boolean;
-    strict_max?: boolean;
-  };
-  expect_column_values_to_match_regex: {
-    column: string;
-    regex: string;
-  };
-}
-
 export const RULE_PARAMS_MAP = {
   expect_column_values_to_not_be_null: {
     column: "",
@@ -56,9 +42,24 @@ export const RULE_PARAMS_MAP = {
     column: "",
     regex: "",
   },
-} satisfies RuleParamsMap;
+} as const;
 
-export type RuleName = keyof RuleParamsMap;
+// Narrowed union of rule ids like "expect_column_values_to_not_be_null" | ...
+export type RuleId = keyof typeof RULE_PARAMS_MAP;
+
+// Optional: stable, label-friendly dropdown source
+export const RULES: { id: RuleId; label: string }[] = [
+  { id: "expect_column_values_to_not_be_null", label: "Not Null" },
+  { id: "expect_column_values_to_be_between", label: "Between" },
+  { id: "expect_column_values_to_match_regex", label: "Matches Regex" },
+] as const;
+
+export type RuleOption = typeof RULES[number];
+export type RuleName = keyof typeof RULE_PARAMS_MAP;
+export type RuleParamsMap = typeof RULE_PARAMS_MAP;
+export type RuleParams<K extends RuleName> = RuleParamsMap[K];
+
+
 
 /** One rule instance for an attribute */
 export type RuleSpec<K extends RuleName = RuleName> = {
