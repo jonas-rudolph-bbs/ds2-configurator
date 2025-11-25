@@ -31,17 +31,28 @@
           @if (!edible){
           <button class="btn btn-ds2" (click)="edible = !edible">Edit</button>
           } @else {
-          <button class="btn btn-ds2 btn-outline-ds2" (click)="edible = !edible">Cancel</button>
+          <div>
+            <button class="btn btn-ds2 mx-2">Save</button>
+            <button
+              class="btn btn-ds2 btn-outline-ds2"
+              (click)="edible = !edible"
+            >
+              Cancel
+            </button>
+          </div>
+
           }
         </div>
 
         <div class="card-body">
           @if (!edible){
-            <app-configuration-details
-              [topic]="cfg?.[selectedTopic]"></app-configuration-details>
+          <app-configuration-details
+            [topic]="cfg?.[selectedTopic]"
+          ></app-configuration-details>
           } @else {
-            <app-configuration-edit-form
-            [topic]="cfg?.[selectedTopic]"></app-configuration-edit-form>
+          <app-configuration-edit-form
+            [topic]="cfg?.[selectedTopic]"
+          ></app-configuration-edit-form>
 
           }
         </div>

@@ -5,7 +5,7 @@
 
 .rule-dropdown-ds2 {
     border-radius: 1.5rem;
-    background-color: var(--secondary-color);
+    background-color: var(--primary-color-60);
     color: var(--button-text-color-hover);
     border: none;
     width: 370px;
@@ -13,18 +13,18 @@
 
 .handler-dropdown-ds2 {
     border-radius: 0.8rem;
-    background-color: grey;
-    color: white;
+    background-color: var(--secondary-background-color);
+    color: black;
     font-size: .75rem;
     font-weight: bold;
 
     border: none;
-    width: 200px;
+    width: 300px;
 }
 
 .params-input-ds2 {
-    font-size: 0.775em; /* slightly smaller */
-  color: var(--bs-code-color); /* often a reddish tone */
+    font-size: 0.775em;
+  color: var(--bs-code-color);
   word-wrap: break-word;
   font-family: var(--bs-font-monospace);
 }

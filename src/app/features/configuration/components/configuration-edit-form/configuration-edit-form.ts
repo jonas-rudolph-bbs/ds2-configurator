@@ -29,13 +29,14 @@ type Rule = (typeof RULES)[number];
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, KeyValuePipe],
   templateUrl: "./configuration-edit-form.html",
+  styleUrls: ["./configuration-edit-form.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConfigurationEditForm implements OnChanges {
   @Input() topic: TopicDefinition | undefined;
 
   readonly rules: readonly Rule[] = RULES;
-  readonly handlers = HANDLERS;
+  readonly handlers: readonly {id: string, label:  string}[] = HANDLERS;
 
   /**
    * A map of entryKey -> list of FormGroups (one per RuleSpec)
@@ -94,10 +95,7 @@ export class ConfigurationEditForm implements OnChanges {
       attName: this.fb.control(entryKey ?? ""),
       rule: this.fb.control(spec.rule ?? ""),
       // handler as a real control (disabled by default if you don't want it edited)
-      handler: new FormControl(
-        { value: spec.handler ?? "", disabled: true },
-        { nonNullable: false }
-      ),
+      handler: this.fb.control(spec.handler ?? ""),
       params: paramsGroup,
       // it can be useful to keep entryKey if you need it on submit
       _entryKey: this.fb.control(entryKey),
@@ -107,10 +105,6 @@ export class ConfigurationEditForm implements OnChanges {
     fg.get("rule")!.valueChanges.subscribe((newRule) => {
       this.syncParamsForRule(fg, newRule as RuleName, this.topic);
     });
-
-    // also ensure initial param shape matches the initial rule
-    // const initialRule = fg.get('rule')!.value as RuleName;
-    // this.syncParamsForRule(fg, initialRule, /*preserveExisting*/ true);
 
     return fg;
   }

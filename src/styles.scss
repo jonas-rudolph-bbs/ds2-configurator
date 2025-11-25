@@ -9,22 +9,40 @@
 }
 
 :root {
-  --primary-color: #128F8B;
-  --primary-color-hover: #0C6361;
-  --secondary-color: #24D4C6;
-  --secondary-color-hover: #21C2B5;
-  --primary-background-color: #FFFFFF;
-  --secondary-background-color: #E0E0E0;
-  --third-background-color: #F5F5F5;
-  --text-color: #000000;
-  --seondary-text-color: #757575;
-  --hint-text-color: #9b9b9b;
-  --error-color: #EA6B66;
-  --button-text-color: #FFFFFF;
-  --border-color: #757575;
-  --accent-color: #e8e7fa;
-  --shadow-color: #E8E8E8;
+  /* Primary colors */
+  --primary-color: rgb(18, 143, 139);             
+  --primary-color-80: rgba(18, 143, 139, 0.8);
+  --primary-color-60: rgba(18, 143, 139, 0.6);    
+  --primary-color-hover: rgb(12, 99, 97);       
+
+  /* Secondary colors */
+  --secondary-color: rgb(36, 212, 198);           
+  --secondary-color-hover: rgb(33, 194, 181);      
+
+  /* Backgrounds */
+  --primary-background-color: rgb(255, 255, 255); 
+  --secondary-background-color: rgb(224, 224, 224);
+  --third-background-color: rgb(245, 245, 245);    
+
+  /* Text */
+  --text-color: rgb(0, 0, 0);                     
+  --seondary-text-color: rgb(117, 117, 117);   
+  --hint-text-color: rgb(155, 155, 155);          
+
+  /* Error */
+  --error-color: rgb(234, 107, 102);              
+
+  /* Buttons */
+  --button-text-color: rgb(255, 255, 255);         
+
+  /* Borders */
+  --border-color: rgb(117, 117, 117);           
+
+  /* Accent + shadow */
+  --accent-color: rgb(232, 231, 250);              
+  --shadow-color: rgb(232, 232, 232);              /* #E8E8E8 */
 }
+
 
 
 body {

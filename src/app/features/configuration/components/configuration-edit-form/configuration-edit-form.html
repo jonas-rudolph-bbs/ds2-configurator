@@ -1,69 +1,87 @@
 <!-- configuration-edit-form.html -->
 
 <div class="p-3">
-  @if (topic; as def) { 
-    @for (entry of def | keyvalue; track entry.key) {
-      <section class="mb-4">
-        @if (getFormsFor(entry.key)?.length) { 
-          @for (fg of getFormsFor(entry.key); track $index) {
-            <form class="card mb-3" [formGroup]="fg">
-              <!-- Attribute name -->
+  @if (topic; as def) { @for (entry of def | keyvalue; track entry.key) {
+  <section class="mb-4">
+    @if (getFormsFor(entry.key)?.length) { @for (fg of getFormsFor(entry.key);
+    track $index) {
+    <form class="card mb-3" [formGroup]="fg">
+      <!-- Attribute name -->
+      <input
+        class="form-control form-control-ds2 attribute-input-ds2"
+        formControlName="attName"
+        aria-label="Attribute name"
+      />
+
+      <div class="card-body">
+        <div class="d-flex gap-2 align-items-center justify-content-between">
+          <!-- Rule -->
+          <div>
+            <label
+              class=" form-control-sm text-muted fw-semibold p-0"
+              [attr.for]="'rule'+ entry.key"
+            >
+              Expectation Rule
+            </label>
+            <select
+              class="form-select form-control-ds2 rule-dropdown-ds2 fw-semibold"
+              formControlName="rule"
+              aria-label="Rule"
+              [id]="'rule'+ entry.key"
+            >
+              @for (r of rules; track r) {
+              <option [value]="r.id">{{ r.label }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Handler -->
+          <div>
+            <label
+              class=" form-control-sm text-muted fw-semibold p-0"
+              [attr.for]="'handler'+ entry.key"
+              >Handler</label
+            >
+            <select
+              class="form-select-sm form-control-ds2 handler-dropdown-ds2"
+              formControlName="handler"
+              aria-label="Handler"
+            >
+              @for (handler of handlers; track handler.id){
+              <option [value]="handler.id">{{ handler.label }}</option>
+              }
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Dynamic params -->
+        <div class="mt-3" formGroupName="params">
+          @for (paramKey of paramKeys(fg); track paramKey) {
+          <div class="row g-2 align-items-center mb-2">
+            <label
+              class="col-sm-4 col-form-label col-form-label-sm text-muted fw-semibold"
+              [attr.for]="'param-' + entry.key + '-' + $index + '-' + paramKey"
+            >
+              {{ paramKey }}
+            </label>
+            <div class="col-sm-8">
               <input
-                class="form-control form-control-ds2 attribute-input-ds2"
-                formControlName="attName"
-                aria-label="Attribute name"
+                class="form-control form-control-sm form-control-ds2 params-input-ds2"
+                [id]="'param-' + entry.key + '-' + $index + '-' + paramKey"
+                [formControlName]="paramKey"
               />
-
-              <div class="card-body">
-                <div class="d-flex gap-2 align-items-start">
-                  <!-- Rule -->
-                  <select
-                    class="form-select rule-dropdown-ds2 fw-semibold"
-                    formControlName="rule"
-                    aria-label="Rule"
-                  >
-                    @for (r of rules; track r) {
-                      <option [value]="r.id">{{ r.label }}</option>
-                    }
-                  </select>
-
-                  <!-- Handler (as a real control, disabled by default) -->
-                  <input
-                    class="form-control form-control-sm"
-                    formControlName="handler"
-                    aria-label="Handler"
-                  />
-                </div>
-
-                <!-- Dynamic params -->
-                <div class="mt-3" formGroupName="params">
-                  @for (paramKey of paramKeys(fg); track paramKey) {
-                    <div class="row g-2 align-items-center mb-2">
-                      <label
-                        class="col-sm-4 col-form-label col-form-label-sm text-muted fw-semibold"
-                        [attr.for]="'param-' + entry.key + '-' + $index + '-' + paramKey"
-                      >
-                        {{ paramKey }}
-                      </label>
-                      <div class="col-sm-8">
-                        <input
-                          class="form-control form-control-sm form-control-ds2 params-input-ds2"
-                          [id]="'param-' + entry.key + '-' + $index + '-' + paramKey"
-                          [formControlName]="paramKey"
-                        />
-                      </div>
-                    </div>
-                  }
-                </div>
-              </div>
-            </form>
-          } 
-        } @else {
-          <p class="text-muted mb-0">No rules configured for “{{ entry.key }}”.</p>
-        }
-      </section>
-    } 
-  } @else {
-    <p class="text-muted">Select a topic to see its configuration.</p>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+    </form>
+    } } @else {
+    <p class="text-muted mb-0">No rules configured for “{{ entry.key }}”.</p>
+    }
+  </section>
+  } } @else {
+  <p class="text-muted">Select a topic to see its configuration.</p>
   }
 </div>
