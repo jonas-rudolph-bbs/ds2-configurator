@@ -32,9 +32,9 @@
           <button class="btn btn-ds2" (click)="edible = !edible">Edit</button>
           } @else {
           <div>
-            <button class="btn btn-ds2 mx-2">Save</button>
+            <button class="btn btn-ds2 mx-2" (click)="onSaveClicked()">Save</button>
             <button
-              class="btn btn-ds2 btn-outline-ds2"
+              class="btn btn-outline-ds2"
               (click)="edible = !edible"
             >
               Cancel
@@ -52,6 +52,7 @@
           } @else {
           <app-configuration-edit-form
             [topic]="cfg?.[selectedTopic]"
+            [formByEntryKey]="topicForms.get(selectedTopic)"
           ></app-configuration-edit-form>
 
           }

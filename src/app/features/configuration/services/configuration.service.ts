@@ -86,4 +86,13 @@ export class ConfigurationService {
       })
     );
   }
+
+  saveConfigurationState(id: string, payload: any): Observable<any> {
+    return this.http.post(`/configs/validation/${id}`, payload).pipe(
+      catchError((err) => {
+        console.error("Failed to save validation config:", err);
+        return throwError(() => err);
+      })
+    );
+  }
 }

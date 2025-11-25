@@ -63,7 +63,6 @@ body {
 }
 
 .btn-outline-ds2 {
-  @extend .btn-outline-primary;
   background-color: transparent;
   border-color: var(--border-color);
   color: var(--border-color);
@@ -73,6 +72,14 @@ body {
     border-color: var(--primary-color-hover);
     color: var(--button-text-color);
   }
+  &:active {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--button-text-color);
+  }
+
+
+
 }
 
 .card-ds2 {
