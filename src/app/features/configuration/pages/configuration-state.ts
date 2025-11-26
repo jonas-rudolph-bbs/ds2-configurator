@@ -104,10 +104,12 @@ export class ConfigurationState implements OnInit {
           const rule = fg.get("rule")?.value;
           const paramsGroup = fg.get("params") as FormGroup | null;
           const params = paramsGroup ? paramsGroup.value : {};
+          const handler = fg.get("handler")?.value || "";
 
           return {
             rule,
             params,
+            handler  
           };
         });
       }
