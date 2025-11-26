@@ -15,13 +15,9 @@ export class ConfigurationDetails {
 
   @Input() topic?: TopicDefinition;
 
-  ngOnInit(): void {
-    console.log("ConfigurationDetails initialized with topic:", this.topic);
-  }
 
-  ngOnChanges(): void {
-    console.log("ConfigurationDetails input changed to topic:", this.topic);
-  }
+
+
 
 
 
