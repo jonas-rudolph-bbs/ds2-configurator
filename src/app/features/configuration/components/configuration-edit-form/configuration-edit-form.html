@@ -2,9 +2,18 @@
 
 <div class="p-3">
   @if (topic; as def) { @for (entry of def | keyvalue; track entry.key) {
+  <!-- A section for each attribute-->
   <section class="mb-4">
     @if (getFormsFor(entry.key)?.length) { @for (fg of getFormsFor(entry.key);
     track $index) {
+    <div class="d-flex flex-row-reverse">
+      <button
+        class="delete-cross-button"
+        (click)="onDeleteAttributeClick(entry.key)"
+      >
+        x
+      </button>
+    </div>
     <form class="card mb-3" [formGroup]="fg">
       <!-- Attribute name -->
       <input
@@ -18,7 +27,7 @@
           <!-- Rule -->
           <div>
             <label
-              class=" form-control-sm text-muted fw-semibold p-0"
+              class="form-control-sm text-muted fw-semibold p-0"
               [attr.for]="'rule'+ entry.key"
             >
               Expectation Rule
@@ -38,7 +47,7 @@
           <!-- Handler -->
           <div>
             <label
-              class=" form-control-sm text-muted fw-semibold p-0"
+              class="form-control-sm text-muted fw-semibold p-0"
               [attr.for]="'handler'+ entry.key"
               >Handler</label
             >
@@ -52,7 +61,6 @@
               }
             </select>
           </div>
-
         </div>
 
         <!-- Dynamic params -->
@@ -77,11 +85,31 @@
         </div>
       </div>
     </form>
-    } } @else {
-    <p class="text-muted mb-0">No rules configured for “{{ entry.key }}”.</p>
-    }
+    } }
   </section>
-  } } @else {
-  <p class="text-muted">Select a topic to see its configuration.</p>
+
+  }
+  <section>
+    <div class="card">
+      <button
+        class="btn btn-ds2 btn-sm btn-outline-ds2"
+        style="border-color: transparent"
+      >
+        + Add a new Rule
+      </button>
+    </div>
+  </section>
+  } @else {
+  <p class="text-muted">Select a topic to see its configuration. Hello</p>
+  <section>
+    <div class="card">
+      <button
+        class="btn btn-ds2 btn-sm btn-outline-ds2"
+        style="border-color: transparent"
+      >
+        + Add a new Rule
+      </button>
+    </div>
+  </section>
   }
 </div>

@@ -48,4 +48,8 @@ export class ConfigurationEditForm {
     return params ? Object.keys(params.controls) : [];
   }
 
+  onDeleteAttributeClick(attributeKey: string): void {
+    this.formByEntryKey?.delete(attributeKey);
+  }
+
 }

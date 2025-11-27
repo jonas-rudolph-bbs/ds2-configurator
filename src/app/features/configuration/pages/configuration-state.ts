@@ -21,7 +21,7 @@ import {
   standalone: true,
   imports: [CommonModule, ConfigurationDetails, ConfigurationEditForm],
   templateUrl: "./configuration-state.html",
-  styleUrls: ["./configuration-state.css"],
+  styleUrls: ["./configuration-state.scss"],
 })
 export class ConfigurationState implements OnInit {
   private route = inject(ActivatedRoute);

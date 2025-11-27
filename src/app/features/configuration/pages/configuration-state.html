@@ -1,4 +1,36 @@
 <div class="container-fluid">
+  <div
+    class="modal fade"
+    id="exampleModal"
+    tabindex="-1"
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Sure you want to delete?</h1>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">Are you sure, that you want to delete the selected topic?</div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+          <button type="button" class="btn btn-danger delete-button mx-2">Delete Topic</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="row">
     <!-- Left: Topic card -->
     <div class="col-12 col-lg-4">
@@ -32,12 +64,19 @@
           <button class="btn btn-ds2" (click)="edible = !edible">Edit</button>
           } @else {
           <div>
-            <button class="btn btn-ds2 mx-2" (click)="onSaveClicked()">Save</button>
-            <button
-              class="btn btn-outline-ds2"
-              (click)="edible = !edible"
-            >
+            <button class="btn btn-ds2 mx-2" (click)="onSaveClicked()">
+              Save
+            </button>
+            <button class="btn btn-outline-ds2" (click)="edible = !edible">
               Cancel
+            </button>
+            <button
+              class="btn btn-danger delete-button mx-2"
+              type="button"
+              data-bs-toggle="modal"
+              data-bs-target="#exampleModal"
+            >
+              Delete
             </button>
           </div>
 
