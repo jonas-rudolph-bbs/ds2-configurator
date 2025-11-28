@@ -236,4 +236,9 @@ export class ConfigurationState implements OnInit {
     });
     fg.setControl("params", newParamsGroup);
   }
+
+  onTopicDeleteClick(): void {
+    this.topicForms.delete(this.selectedTopic);
+    this.onSaveClicked();
+  }
 }

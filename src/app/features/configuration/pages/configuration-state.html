@@ -9,15 +9,9 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">Sure you want to delete?</h1>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
+          <h2 class="modal-title fs-5" id="exampleModalLabel">Delete Topic</h2>
         </div>
-        <div class="modal-body">Are you sure, that you want to delete the selected topic?</div>
+        <div class="modal-body">Are you sure you want to delete the topic <b>{{selectedTopic}}</b>? <br>  This action cannot be undone.</div>
         <div class="modal-footer">
           <button
             type="button"
@@ -26,7 +20,7 @@
           >
             Close
           </button>
-          <button type="button" class="btn btn-danger delete-button mx-2">Delete Topic</button>
+          <button type="button" class="btn btn-danger delete-button mx-2" (click)="onTopicDeleteClick()" data-bs-dismiss="modal">Delete Topic</button>
         </div>
       </div>
     </div>
