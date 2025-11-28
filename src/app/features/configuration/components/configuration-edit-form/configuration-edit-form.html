@@ -1,7 +1,8 @@
 <!-- configuration-edit-form.html -->
 
 <div class="p-3">
-  @if (topic; as def) { @for (entry of def | keyvalue; track entry.key) {
+  @if (formByEntryKey; as map) { @for (entry of map | keyvalue; track entry.key)
+  {
   <!-- A section for each attribute-->
   <section class="mb-4">
     @if (getFormsFor(entry.key)?.length) { @for (fg of getFormsFor(entry.key);
@@ -94,6 +95,7 @@
       <button
         class="btn btn-ds2 btn-sm btn-outline-ds2"
         style="border-color: transparent"
+        (click)="onAddRuleClick()"
       >
         + Add a new Rule
       </button>
@@ -106,6 +108,7 @@
       <button
         class="btn btn-ds2 btn-sm btn-outline-ds2"
         style="border-color: transparent"
+        (click)="onAddRuleClick()"
       >
         + Add a new Rule
       </button>

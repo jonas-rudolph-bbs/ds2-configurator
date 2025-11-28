@@ -105,7 +105,15 @@ export class ConfigurationState implements OnInit {
       const topicPayload: any = {};
 
       for (const [entryKey, groups] of formsByEntryKey.entries()) {
-        topicPayload[entryKey] = groups.map((fg) => {
+        if(!groups.length) continue;
+
+        const firstGroup = groups[0];
+        const newAttributeKey = firstGroup.get("attName")?.value.trim();
+        const finalAttributeKey = newAttributeKey || entryKey;
+
+
+
+        topicPayload[finalAttributeKey] = groups.map((fg) => {
           const rule = fg.get("rule")?.value;
           const paramsGroup = fg.get("params") as FormGroup | null;
           const params = paramsGroup ? paramsGroup.value : {};
