@@ -50,3 +50,11 @@ input[type="text"] {
 .ds2-table tbody tr:hover {
   background: #f8f9fa;
 }
+
+.trash-button {
+  color: rgba(234, 107, 102, 0.75);
+}
+
+.trash-button:hover {
+  transform: scale(1.2);
+}

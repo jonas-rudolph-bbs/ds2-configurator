@@ -16,7 +16,9 @@
   --primary-color-hover: rgb(12, 99, 97);       
 
   /* Secondary colors */
-  --secondary-color: rgb(36, 212, 198);           
+  --secondary-color: rgb(36, 212, 198); 
+  --secondary-color-80: rgba(36, 212, 198, 0.8);
+  --secondary-color-60: rgba(36, 212, 198, 0.6);          
   --secondary-color-hover: rgb(33, 194, 181);      
 
   /* Backgrounds */
@@ -165,5 +167,11 @@ body {
       }
     }
   }
+}
+
+.alert-info-ds2{
+  @extend .alert-info;
+  background-color: transparent;
+  border-color: transparent;
 }
 

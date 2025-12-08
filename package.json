@@ -26,6 +26,7 @@
     "@angular/build": "^20.2.0-next",
     "@angular/cli": "^20.2.0-next",
     "@angular/compiler-cli": "^20.2.0-next",
+    "@types/bootstrap": "^5.2.10",
     "@types/node": "^16.11.35",
     "sass": "^1.92.1",
     "ts-node": "~10.9.0",

@@ -95,4 +95,8 @@ export class ConfigurationService {
       })
     );
   }
+
+  deleteConfiguration(id: string): Observable<void> {
+    return this.http.delete<void>(`/configs/validation/${id}`);
+  }
 }
