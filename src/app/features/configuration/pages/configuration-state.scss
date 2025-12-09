@@ -17,3 +17,32 @@
 .form-control-topic {
   font-weight: 600;  
 }
+
+
+.placeholder {
+  height: 25px; /* Adjust height as needed */
+}
+
+.back-btn-ds2 {
+  background-color: transparent;
+  border-color: transparent;
+  &:hover {
+    background-color: var(--primary-color-20);
+    border-color: var(--primary-color-40);
+    color: var(--button-text-color);
+  }
+  &:active {
+    background-color: var(--primary-color-40);
+    border-color: var(--primary-color-60);
+    color: var(--button-text-color);
+  }
+}
+
+
+
+
+.return-icon {
+  width: 28px;
+  height: 28px;
+  fill: var(--primary-color-80);     /* ✅ Inherits from button color */
+}

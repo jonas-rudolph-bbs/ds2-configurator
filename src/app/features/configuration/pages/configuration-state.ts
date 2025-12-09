@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, DestroyRef } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { CommonModule } from "@angular/common";
 import { switchMap, map, finalize } from "rxjs/operators";
 import { of } from "rxjs";
@@ -7,7 +7,12 @@ import { ConfigurationService } from "../services/configuration.service";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ConfigurationDetails } from "../components/configuration-details/configuration-details";
 import { ConfigurationEditForm } from "../components/configuration-edit-form/configuration-edit-form";
-import { FormBuilder, FormGroup, FormControl, ReactiveFormsModule } from "@angular/forms";
+import {
+  FormBuilder,
+  FormGroup,
+  FormControl,
+  ReactiveFormsModule,
+} from "@angular/forms";
 import {
   TopicDefinition,
   TopicsMap,
@@ -19,11 +24,17 @@ import {
 @Component({
   selector: "app-configuration-state",
   standalone: true,
-  imports: [CommonModule, ConfigurationDetails, ConfigurationEditForm, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    ConfigurationDetails,
+    ConfigurationEditForm,
+    ReactiveFormsModule,
+  ],
   templateUrl: "./configuration-state.html",
   styleUrls: ["./configuration-state.scss"],
 })
 export class ConfigurationState implements OnInit {
+  constructor(private router: Router) {}
   private route = inject(ActivatedRoute);
   private svc = inject(ConfigurationService);
   private destroyRef = inject(DestroyRef);
@@ -38,6 +49,7 @@ export class ConfigurationState implements OnInit {
   selectedTopic: string = "";
   edible: boolean = false;
   isSaving: boolean = false;
+  configCreation: boolean | null = null;
 
   topicForms = new Map<string, Map<string, FormGroup[]>>();
   topicNameControls = new Map<string, FormControl<string>>();
@@ -52,15 +64,17 @@ export class ConfigurationState implements OnInit {
           this.id = id;
           if (!id) return of(null);
           return this.svc.getConfigurationState(id);
-        },),
+        }),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (cfg) => {
           if (!cfg) {
             console.warn("No configuration found for id:", this.id);
+            this.configCreation = true;
             return;
-          };
+          }
+          this.configCreation = false;
           this.cfg = cfg.topics;
           this.topics = Object.entries(cfg.topics);
 
@@ -138,14 +152,11 @@ export class ConfigurationState implements OnInit {
       topicNameMap.set(topicName, finalName);
     }
 
-
-
     // 2. Build payload from forms
     const payload: any = {};
     for (const [topicName, formsByEntryKey] of this.topicForms.entries()) {
-      const finalTopicName = topicNameMap.get(topicName)  ?? topicName;
+      const finalTopicName = topicNameMap.get(topicName) ?? topicName;
       const topicPayload: any = {};
-
 
       for (const [entryKey, groups] of formsByEntryKey.entries()) {
         if (!groups.length) continue;
@@ -209,7 +220,7 @@ export class ConfigurationState implements OnInit {
     this.originalTopicNames.clear();
 
     for (const [topicName] of this.topics) {
-      const ctrl = new FormControl<string>(topicName, {nonNullable: true });
+      const ctrl = new FormControl<string>(topicName, { nonNullable: true });
       this.topicNameControls.set(topicName, ctrl);
       this.originalTopicNames.set(topicName, topicName);
     }
@@ -291,45 +302,68 @@ export class ConfigurationState implements OnInit {
 
   onTopicDeleteClick(): void {
     this.topicForms.delete(this.selectedTopic);
-    this.onSaveClicked();
+    delete this.cfg?.[this.selectedTopic];
+    this.topics = this.topics.filter(
+      ([name, _]) => name !== this.selectedTopic
+    );
+
   }
 
+  // Handler for "Add Topic" button
   onAddTopicClick(): void {
-  const baseName = "New Topic";
-  let index = 1;
-  let newTopicName = baseName;
+    const baseName = "NewTopic";
+    let index = 1;
+    let newTopicName = baseName;
 
-  // Make sure the topic name is unique
-  const existingNames = new Set(this.topicForms.keys());
-  while (existingNames.has(newTopicName)) {
-    index++;
-    newTopicName = `${baseName} ${index}`;
+    // Make sure the topic name is unique
+    const existingNames = new Set(this.topicForms.keys());
+    while (existingNames.has(newTopicName)) {
+      index++;
+      newTopicName = `${baseName} ${index}`;
+    }
+
+    // Ensure cfg exists
+    if (!this.cfg) {
+      this.cfg = {};
+    }
+
+    // Create empty TopicDefinition for the new topic
+    this.cfg[newTopicName] = {};
+
+    // Append to topics array so the left list updates
+    this.topics = [...this.topics, [newTopicName, this.cfg[newTopicName]]];
+
+    // Create and register the topic name control
+    const ctrl = new FormControl<string>(newTopicName, { nonNullable: true });
+    this.topicNameControls.set(newTopicName, ctrl);
+    this.originalTopicNames.set(newTopicName, newTopicName);
+
+    // Create an empty form map for this topic (no attributes yet)
+    this.topicForms.set(newTopicName, new Map<string, FormGroup[]>());
+
+    // Select the new topic and switch to edit mode so the name can be changed
+    this.selectedTopic = newTopicName;
+    this.edible = true;
   }
 
-  // Ensure cfg exists
-  if (!this.cfg) {
-    this.cfg = {};
+
+  onCancelClicked(): void {
+    this.edible = false;
+    if (this.configCreation) {
+      // Navigate away or reset state as needed
+      this.configCreation = false;
+      this.id = null;
+      this.cfg = null;
+      this.topics = [];
+      this.topicForms.clear();
+      this.topicNameControls.clear();
+      this.originalTopicNames.clear();
+      this.router.navigate(['/configurations']); // Navigate back to overview
+
+    }
   }
 
-  // Create empty TopicDefinition for the new topic
-  this.cfg[newTopicName] = {};
-
-  // Append to topics array so the left list updates
-  this.topics = [...this.topics, [newTopicName, this.cfg[newTopicName]]];
-
-  // Create and register the topic name control
-  const ctrl = new FormControl<string>(newTopicName, { nonNullable: true });
-  this.topicNameControls.set(newTopicName, ctrl);
-  this.originalTopicNames.set(newTopicName, newTopicName);
-
-  // Create an empty form map for this topic (no attributes yet)
-  this.topicForms.set(newTopicName, new Map<string, FormGroup[]>());
-
-  // Select the new topic and switch to edit mode so the name can be changed
-  this.selectedTopic = newTopicName;
-  this.edible = true;
-}
-
-
-  
+  onBackClicked(): void {
+    this.router.navigate(['/configurations']);
+  }
 }

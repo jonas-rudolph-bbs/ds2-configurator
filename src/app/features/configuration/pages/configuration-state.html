@@ -1,3 +1,4 @@
+@if(configCreation!==null){
 <div class="container-fluid">
   <!-- Delete Topic Modal -->
   <div
@@ -12,7 +13,11 @@
         <div class="modal-header">
           <h2 class="modal-title fs-5" id="exampleModalLabel">Delete Topic</h2>
         </div>
-        <div class="modal-body">Are you sure you want to delete the topic <b>{{selectedTopic}}</b>? <br>  This action cannot be undone.</div>
+        <div class="modal-body">
+          Are you sure you want to delete the topic <b>{{selectedTopic}}</b>?
+          <br />
+          This action cannot be undone.
+        </div>
         <div class="modal-footer">
           <button
             type="button"
@@ -21,24 +26,62 @@
           >
             Close
           </button>
-          <button type="button" class="btn btn-danger delete-button mx-2" (click)="onTopicDeleteClick()" data-bs-dismiss="modal">Delete Topic</button>
+          <button
+            type="button"
+            class="btn btn-danger delete-button mx-2"
+            (click)="onTopicDeleteClick()"
+            data-bs-dismiss="modal"
+          >
+            Delete Topic
+          </button>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- NEW: small view introduction -->
-  <div class="alert alert-info-ds2 mt-3">
-    <h1 class="h4 mb-1">Configuration editor</h1>
-    <p class="mb-1">
-      On this page you can view and edit the configuration, actual existing in the DTT.
-    </p>
-    <p class="mb-0">
-      <strong>Configuration ID:</strong>
-      <code>{{ id }}</code>
-    </p>
-  </div>    
-
+  <!-- PAGE HEADER-->
+  <header id="page-header">
+    <div id="page-header-actions" class="mb-4">
+      <button
+        class="btn p-1 back-btn-ds2"
+        (click)="onBackClicked()"
+        style="position: relative; left: -10px"
+      >
+        <svg
+          viewBox="0 0 1024 1024"
+          width="1em"
+          height="1em"
+          fill="currentColor"
+          class="return-icon"
+        >
+          <path
+            d="M333.436236 512.002048l363.098222-362.900598c18.226434-18.226434 18.226434-47.770666 0-65.998124s-47.770666-18.226434-65.998124 0L234.422666 479.000938c-18.226434 18.226434-18.226434 47.770666 0 65.998124l396.112643 395.942666c18.227458 18.18138 47.77169 18.18138 65.998124 0 18.226434-18.227458 18.226434-47.77169 0-65.998124L333.436236 512.002048z"
+          />
+        </svg>
+      </button>
+    </div>
+    <div id="page-header-title" class="mb-5">
+      @if(configCreation){
+      <h1 class="h3 mb-2">New Configuration</h1>
+      <p class="text-muted mb-0">
+        On this page you can create a new configuration.
+      </p>
+      <p class="text-muted mb-0">
+        <strong>Configuration ID:</strong>
+        <code>{{ id }}</code>
+      </p>
+      } @else {
+      <h1 class="h3 mb-2">Configuration Editor</h1>
+      <p class="text-muted mb-0">
+        On this page you can view and edit the configuration, actual existing in
+        the DTT.
+      </p>
+      <p class="text-muted mb-0">
+        <strong>Configuration ID:</strong>
+        <code>{{ id }}</code>
+      </p>
+      }
+    </div>
+  </header>
 
   <div class="row">
     <!-- Left: Topic card -->
@@ -56,8 +99,12 @@
             >
             }
 
-            <a class="list-group-item list-group-item-action"
-            (click)="onAddTopicClick()"> + Add Topic </a>
+            <a
+              class="list-group-item list-group-item-action"
+              (click)="onAddTopicClick()"
+            >
+              + Add Topic
+            </a>
           </div>
         </div>
       </div>
@@ -71,22 +118,24 @@
         >
           <!-- Left side of header: topic title / input -->
           @if (!edible) {
-            <span class="fw-semibold">{{ selectedTopic }}</span>
+          <span class="fw-semibold">{{ selectedTopic }}</span>
           } @else {
-            <input
-              type="text"
-              class="form-control form-control-sm w-auto form-control-ds2 form-control-topic"
-              [formControl]="getTopicNameControl(selectedTopic)"
-            />
-          }
-          @if (!edible){
+          <input
+            type="text"
+            class="form-control form-control-sm w-auto form-control-ds2 form-control-topic"
+            [formControl]="getTopicNameControl(selectedTopic)"
+          />
+          } @if (!edible && !configCreation) {
           <button class="btn btn-ds2" (click)="edible = !edible">Edit</button>
-          } @else {
+          } @else if 8(!edible && configCreation) {
+          <div style="color: transparent">Placeholder</div>
+
+          }@else {
           <div>
             <button class="btn btn-ds2 mx-2" (click)="onSaveClicked()">
               Save
             </button>
-            <button class="btn btn-outline-ds2" (click)="edible = !edible">
+            <button class="btn btn-outline-ds2" (click)="onCancelClicked()">
               Cancel
             </button>
             <button
@@ -95,10 +144,9 @@
               data-bs-toggle="modal"
               data-bs-target="#exampleModal"
             >
-              Delete
+              Delete Topic
             </button>
           </div>
-
           }
         </div>
 
@@ -119,3 +167,16 @@
     </div>
   </div>
 </div>
+
+} @else {
+<div
+  class="d-flex justify-content-center align-items-center"
+  style="min-height: 300px"
+>
+  <div class="d-flex flex-column align-items-center">
+    <span class="spinner-border mb-2"></span>
+    <p class="mb-0">Loading ...</p>
+  </div>
+</div>
+
+}

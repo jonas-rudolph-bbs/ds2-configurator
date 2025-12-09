@@ -31,14 +31,25 @@
   </div>
 </div>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h2 class="m-0">Configurations</h2>
-  <!-- optional “add” action -->
-  <a class="btn btn-ds2" (click)="onAddConfigurationClick()"
+ <!-- PAGE HEADER -->
+  <header class="d-flex justify-content-between align-items-start">
+
+    <div class="mb-5">
+      <h1 class="h3 mb-2">Configurations</h1>
+      <p class="text-muted mb-0">
+        Here is a list of all configurations loaded in the DS2 system.
+      </p>
+    </div>
+
+    <div class="">
+      <a class="btn btn-ds2" (click)="onAddConfigurationClick()"
     >Add configuration</a
   >
-</div>
+    </div>
 
+  </header>
+
+<!--PAGE CONTENT-->
 <div class="table-responsive">
   <table class="table table-hover align-middle mb-0 ds2-table">
     <thead class="table-light">
