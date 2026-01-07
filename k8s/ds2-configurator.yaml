@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ds2-configurator
+  labels:
+    app: ds2-configurator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ds2-configurator
+  template:
+    metadata:
+      labels:
+        app: ds2-configurator
+    spec:
+      containers:
+        - name: ds2-configurator
+          image: ghcr.io/jonas-rudolph-bbs/ds2-configurator:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          env:
+            # Example: configure your frontend/backend URL like you did with proxy in dev
+            - name: BACKEND_URL
+              value: "http://ds2-backend.default.svc.cluster.local:8000"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 20
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ds2-configurator
+  labels:
+    app: ds2-configurator
+spec:
+  selector:
+    app: ds2-configurator
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+  type: ClusterIP
