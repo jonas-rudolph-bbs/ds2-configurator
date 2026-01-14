@@ -3,6 +3,7 @@ import { ConfigurationOverview } from './features/configuration/pages/configurat
 import { ConfigurationState } from './features/configuration/pages/configuration-state';
 import { Ds2Homescreen } from './features/homescreen/ds2-homescreen';
 import { AppLayout } from './shared/layout/app-layout';
+import { Ds2About } from './features/about/pages/about';
 
 const routeConfig: Routes = [
   {
@@ -15,7 +16,9 @@ const routeConfig: Routes = [
     title: 'DS2 Configurations',
     children: [
       { path: 'configurations', component: ConfigurationOverview, title: 'Configurations' },
-      {path: 'details/:id', component: ConfigurationState, title: 'Configuration Details'}
+      {path: 'details/:id', component: ConfigurationState, title: 'Configuration Details'},
+      {path: 'about', component: Ds2About , title: 'About DDT'}
+
       ]
   }
 ];

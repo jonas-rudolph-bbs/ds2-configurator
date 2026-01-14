@@ -1,0 +1,32 @@
+<div class="container-fluid">
+    <!-- VIEW HEADER-->
+    <header id="page-header">
+        <div id="page-header-actions" class="mb-4">
+            <button class="btn p-1 back-btn-ds2" (click)="onBackClicked()" style="position: relative; left: -10px">
+                <svg viewBox="0 0 1024 1024" width="1em" height="1em" fill="currentColor" class="return-icon">
+                    <path
+                        d="M333.436236 512.002048l363.098222-362.900598c18.226434-18.226434 18.226434-47.770666 0-65.998124s-47.770666-18.226434-65.998124 0L234.422666 479.000938c-18.226434 18.226434-18.226434 47.770666 0 65.998124l396.112643 395.942666c18.227458 18.18138 47.77169 18.18138 65.998124 0 18.226434-18.227458 18.226434-47.77169 0-65.998124L333.436236 512.002048z" />
+                </svg>
+            </button>
+        </div>
+        <h1 class="h3 mb-2">About DDT</h1>
+        <div class="row">
+            <div class="col-10">
+                <p class="text-muted mb-0">This is the Data Detection and Transformation Module (DDT) from the <a
+                        href="https://www.dataspace2.eu/">DS2</a> Project.</p>
+
+            </div>
+
+            <div class="col-2 d-flex align-items-center gap-2 flex-wrap">
+                <span class="badge rounded-pill text-bg-light" style="border: 1px solid var(--primary-color-20);">
+                    {{ environmentLabel }}
+                </span>
+                <span class="badge rounded-pill text-bg-light" style="border: 1px solid var(--primary-color-20);">
+                    Version {{ version }}
+                </span>
+            </div>
+        </div>
+
+    </header>
+
+</div>

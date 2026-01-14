@@ -16,14 +16,14 @@ spec:
     spec:
       containers:
         - name: ds2-configurator
-          image: ghcr.io/jonas-rudolph-bbs/ds2-configurator:1.0.0
+          image: ghcr.io/jonas-rudolph-bbs/ds2-configurator:1.0.2
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
           env:
             # Example: configure your frontend/backend URL like you did with proxy in dev
             - name: BACKEND_URL
-              value: "http://ds2-backend.default.svc.cluster.local:8000"
+              value: "http://ds2-ddt:8000"
           readinessProbe:
             httpGet:
               path: /

@@ -2,5 +2,4 @@ node_modules
 .angular
 dist
 
-Dockerfile
 nginx.conf
