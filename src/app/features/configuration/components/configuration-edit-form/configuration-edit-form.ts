@@ -82,7 +82,6 @@ export class ConfigurationEditForm {
     // 4) Insert as a **new attribute** with a single rule
     this.formByEntryKey.set(entryKey, [fg]);
 
-    console.log("Added new attribute:", entryKey, this.formByEntryKey);
   }
 
   private syncParamsForRule(fg: FormGroup, selectedRule: RuleName): void {
@@ -107,4 +106,15 @@ export class ConfigurationEditForm {
 
     fg.setControl("params", newParamsGroup);
   }
+
+  onInfoClicked(fg: FormGroup): void {
+  const selectedRule = fg.get("rule")?.value as string | null | undefined;
+
+  if (!selectedRule) {
+    return;
+  }
+  const url = `https://greatexpectations.io/expectations/${selectedRule}/`;
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
 }

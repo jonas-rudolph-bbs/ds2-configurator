@@ -7,6 +7,7 @@ import { ConfigurationService } from "../services/configuration.service";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ConfigurationDetails } from "../components/configuration-details/configuration-details";
 import { ConfigurationEditForm } from "../components/configuration-edit-form/configuration-edit-form";
+import { ConfigurationFormFactory } from "../forms/configuration-form.factory";
 import {
   FormBuilder,
   FormGroup,
@@ -20,6 +21,8 @@ import {
   RuleName,
   RULE_PARAMS_MAP,
 } from "../services/configuration.types";
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: "app-configuration-state",
@@ -29,15 +32,18 @@ import {
     ConfigurationDetails,
     ConfigurationEditForm,
     ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
   ],
   templateUrl: "./configuration-state.html",
   styleUrls: ["./configuration-state.scss"],
 })
 export class ConfigurationState implements OnInit {
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
   private route = inject(ActivatedRoute);
   private svc = inject(ConfigurationService);
   private destroyRef = inject(DestroyRef);
+  private formFactory = inject(ConfigurationFormFactory);
 
   private fb = inject(FormBuilder);
 
@@ -54,6 +60,7 @@ export class ConfigurationState implements OnInit {
   topicForms = new Map<string, Map<string, FormGroup[]>>();
   topicNameControls = new Map<string, FormControl<string>>();
   originalTopicNames = new Map<string, string>();
+  saveAttempted = false;
 
   // On component init, load configuration state
   ngOnInit(): void {
@@ -95,6 +102,7 @@ export class ConfigurationState implements OnInit {
     this.selectedTopic = topicName;
   }
 
+  // getter for TopicName COntrol
   getTopicNameControl(topicName: string): FormControl<string> {
     const ctrl = this.topicNameControls.get(topicName);
     if (!ctrl) {
@@ -116,6 +124,8 @@ export class ConfigurationState implements OnInit {
       return;
     }
 
+    this.saveAttempted = true;
+
     // 1. Validate all forms
     let allValid = true;
 
@@ -132,6 +142,7 @@ export class ConfigurationState implements OnInit {
       for (const groups of formsByEntryKey.values()) {
         for (const fg of groups) {
           fg.markAllAsTouched();
+          console.log("Attribute Formgroup:", fg.invalid);
           if (fg.invalid) {
             allValid = false;
           }
@@ -199,8 +210,6 @@ export class ConfigurationState implements OnInit {
           this.cfg = cfg.topics;
           this.topics = Object.entries(cfg.topics);
           this.buildTopicForms(cfg.topics);
-          console.log("Reloaded configuration after save:", cfg);
-
           if (this.topics && this.topics.length > 0) {
             this.selectedTopic = this.topics[0][0];
           }
@@ -215,16 +224,26 @@ export class ConfigurationState implements OnInit {
       });
   }
 
+  // construct the list of TopicName Controls
   private initTopicNameControls(): void {
     this.topicNameControls.clear();
     this.originalTopicNames.clear();
 
+    // helper used by uniqueness validator
+    const getAllNames = () => Array.from(this.topicNameControls.values()).map((c) => c.value);
+
     for (const [topicName] of this.topics) {
-      const ctrl = new FormControl<string>(topicName, { nonNullable: true });
+      const ctrl = this.formFactory.createTopicNameControl(topicName, getAllNames);
       this.topicNameControls.set(topicName, ctrl);
       this.originalTopicNames.set(topicName, topicName);
     }
+
+    // After all controls exist, force uniqueness validators to re-run once
+    for (const ctrl of this.topicNameControls.values()) {
+      ctrl.updateValueAndValidity({ emitEvent: false });
+    }
   }
+
 
   // Build forms for all topics within the configuration
   private buildTopicForms(topics: TopicsMap): void {
@@ -232,72 +251,20 @@ export class ConfigurationState implements OnInit {
 
     for (const [topicName, topicDef] of Object.entries(topics)) {
       const formsByEntryKey = new Map<string, FormGroup[]>();
+      const getAllAttributeNames = () =>
+        Array.from(formsByEntryKey.values())
+          .flat()
+          .map(fg => (fg.get("attName")?.value ?? "").toString());
 
-      for (const [entryKey, specs] of Object.entries(topicDef)) {
-        const groups =
-          specs?.map((spec) => this.buildRuleForm(entryKey, spec, topicDef)) ??
-          [];
+      for (const [entryKey, rules] of Object.entries(topicDef)) {
+        const groups = (rules ?? []).map((spec: RuleSpec) =>
+          this.formFactory.buildRuleForm(entryKey, getAllAttributeNames, spec)
+        );
         formsByEntryKey.set(entryKey, groups);
       }
 
       this.topicForms.set(topicName, formsByEntryKey);
     }
-  }
-
-  // Build a form group for one rule spec
-  private buildRuleForm(
-    entryKey: string,
-    spec: RuleSpec,
-    topicDef: TopicDefinition
-  ): FormGroup {
-    const paramsGroup = this.fb.group({});
-
-    // seed initial params from the spec
-    for (const [paramKey, value] of Object.entries(spec.params ?? {})) {
-      paramsGroup.addControl(paramKey, this.fb.control(value));
-    }
-    console.log("attributeKey: ", entryKey, "paramGroup: ", paramsGroup);
-
-    const fg = this.fb.group({
-      attName: this.fb.control(entryKey ?? ""),
-      rule: this.fb.control(spec.rule ?? ""),
-      handler: this.fb.control(spec.handler ?? ""),
-      params: paramsGroup,
-      _entryKey: this.fb.control(entryKey),
-    });
-
-    // keep params in sync when the rule changes
-    fg.get("rule")!.valueChanges.subscribe((newRule) => {
-      this.syncParamsForRule(fg, newRule as RuleName);
-    });
-
-    return fg;
-  }
-
-  // Synchronize the params form group when the rule changes
-  private syncParamsForRule(fg: FormGroup, selectedRule: RuleName): void {
-    if (!selectedRule) {
-      fg.setControl("params", this.fb.group({}));
-      return;
-    }
-
-    // new shape of params based on the selected rule
-    const template = RULE_PARAMS_MAP[selectedRule];
-    if (!template) {
-      fg.setControl("params", this.fb.group({}));
-      return;
-    }
-
-    type ParamKey = keyof typeof template;
-
-    // new form group for params
-    const newParamsGroup = this.fb.group({});
-
-    // new controls per param key
-    (Object.keys(template) as ParamKey[]).forEach((key) => {
-      newParamsGroup.addControl(key as string, this.fb.control(""));
-    });
-    fg.setControl("params", newParamsGroup);
   }
 
   onTopicDeleteClick(): void {
@@ -306,6 +273,8 @@ export class ConfigurationState implements OnInit {
     this.topics = this.topics.filter(
       ([name, _]) => name !== this.selectedTopic
     );
+    this.selectedTopic = this.topics?.[0][0];
+
 
   }
 

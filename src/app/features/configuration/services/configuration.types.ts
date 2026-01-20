@@ -18,9 +18,10 @@ export type TopicsMap = Record<string, TopicDefinition>;
 export type TopicDefinition = Record<string, RuleSpec[]>;
 
 /** Optional handler names observed in payload */
-export type  Handler = "SmoothingOutliers" | "RaiseAlarm" | "TimestampCorrection";
+export type  Handler = "" | "SmoothingOutliers" | "RaiseAlarm" | "TimestampCorrection";
 
 export const HANDLERS: {id: Handler, label: string}[] = [
+  { id: "", label: "No Handler"},
   { id: "SmoothingOutliers", label: "Smoothing Outliers" },
   { id: "RaiseAlarm", label: "Raise Alarm" },
   { id: "TimestampCorrection", label: "Timestamp Correction" },

@@ -1,13 +1,7 @@
 @if(configCreation!==null){
 <div class="container-fluid">
-  <!-- Delete Topic Modal -->
-  <div
-    class="modal fade"
-    id="exampleModal"
-    tabindex="-1"
-    aria-labelledby="exampleModalLabel"
-    aria-hidden="true"
-  >
+  <!-- MODALS -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -19,19 +13,11 @@
           This action cannot be undone.
         </div>
         <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
             Close
           </button>
-          <button
-            type="button"
-            class="btn btn-danger delete-button mx-2"
-            (click)="onTopicDeleteClick()"
-            data-bs-dismiss="modal"
-          >
+          <button type="button" class="btn btn-danger delete-button mx-2" (click)="onTopicDeleteClick()"
+            data-bs-dismiss="modal">
             Delete Topic
           </button>
         </div>
@@ -40,25 +26,16 @@
   </div>
   <!-- PAGE HEADER-->
   <header id="page-header">
+    <!-- Page Header Actions-->
     <div id="page-header-actions" class="mb-4">
-      <button
-        class="btn p-1 back-btn-ds2"
-        (click)="onBackClicked()"
-        style="position: relative; left: -10px"
-      >
-        <svg
-          viewBox="0 0 1024 1024"
-          width="1em"
-          height="1em"
-          fill="currentColor"
-          class="return-icon"
-        >
+      <button class="btn p-1 back-btn-ds2" (click)="onBackClicked()" style="position: relative; left: -10px">
+        <svg viewBox="0 0 1024 1024" width="1em" height="1em" fill="currentColor" class="return-icon">
           <path
-            d="M333.436236 512.002048l363.098222-362.900598c18.226434-18.226434 18.226434-47.770666 0-65.998124s-47.770666-18.226434-65.998124 0L234.422666 479.000938c-18.226434 18.226434-18.226434 47.770666 0 65.998124l396.112643 395.942666c18.227458 18.18138 47.77169 18.18138 65.998124 0 18.226434-18.227458 18.226434-47.77169 0-65.998124L333.436236 512.002048z"
-          />
+            d="M333.436236 512.002048l363.098222-362.900598c18.226434-18.226434 18.226434-47.770666 0-65.998124s-47.770666-18.226434-65.998124 0L234.422666 479.000938c-18.226434 18.226434-18.226434 47.770666 0 65.998124l396.112643 395.942666c18.227458 18.18138 47.77169 18.18138 65.998124 0 18.226434-18.227458 18.226434-47.77169 0-65.998124L333.436236 512.002048z" />
         </svg>
       </button>
     </div>
+    <!-- Page Header Title-->
     <div id="page-header-title" class="mb-5">
       @if(configCreation){
       <h1 class="h3 mb-2">New Configuration</h1>
@@ -83,6 +60,7 @@
     </div>
   </header>
 
+  <!-- PAGE CONTENT-->
   <div class="row">
     <!-- Left: Topic card -->
     <div class="col-12 col-lg-4">
@@ -91,18 +69,11 @@
         <div class="card-body p-0">
           <div class="list-group list-group-ds2">
             @for (entry of topics; track entry[0]) {
-            <a
-              class="list-group-item list-group-item-action"
-              (click)="selectTopic(entry[0])"
-              [class.active]="entry[0] === selectedTopic"
-              >{{ entry[0] }}</a
-            >
+            <a class="list-group-item list-group-item-action" (click)="selectTopic(entry[0])"
+              [class.active]="entry[0] === selectedTopic">{{ entry[0] }}</a>
             }
 
-            <a
-              class="list-group-item list-group-item-action"
-              (click)="onAddTopicClick()"
-            >
+            <a class="list-group-item list-group-item-action" (click)="onAddTopicClick()">
               + Add Topic
             </a>
           </div>
@@ -113,18 +84,28 @@
     <!-- Right: edit form -->
     <div class="col-12 col-lg-8">
       <div class="card ds2-card">
-        <div
-          class="card-header d-flex justify-content-between align-items-center"
-        >
+        <div class="card-header d-flex justify-content-between align-items-center" id="card-header">
           <!-- Left side of header: topic title / input -->
           @if (!edible) {
           <span class="fw-semibold">{{ selectedTopic }}</span>
           } @else {
-          <input
-            type="text"
-            class="form-control form-control-sm w-auto form-control-ds2 form-control-topic"
-            [formControl]="getTopicNameControl(selectedTopic)"
-          />
+          @let topicCtrl = getTopicNameControl(selectedTopic);
+
+          <div class="mb-2">
+            <input type="text" class="form-control form-control-sm w-auto form-control-ds2 form-control-topic"
+              [formControl]="topicCtrl" [class.is-invalid]="topicCtrl.invalid && (topicCtrl.touched || saveAttempted)"/>
+
+            <!-- Bootstrap error text -->
+            <div class="invalid-feedback d-block" *ngIf="topicCtrl.invalid && (topicCtrl.touched || saveAttempted)">
+              <div *ngIf="topicCtrl.hasError('trimmedRequired')">Topic name is required.</div>
+              <div *ngIf="topicCtrl.hasError('notUnique')">Topic name must be unique.</div>
+              <div *ngIf="topicCtrl.hasError('maxlength')">Topic name is too long.</div>
+              <div *ngIf="topicCtrl.hasError('noWhitespace')">Topic name must not contain whitespace.</div>
+            </div>
+          </div>
+
+
+
           } @if (!edible && !configCreation) {
           <button class="btn btn-ds2" (click)="edible = !edible">Edit</button>
           } @else if 8(!edible && configCreation) {
@@ -138,12 +119,8 @@
             <button class="btn btn-outline-ds2" (click)="onCancelClicked()">
               Cancel
             </button>
-            <button
-              class="btn btn-danger delete-button mx-2"
-              type="button"
-              data-bs-toggle="modal"
-              data-bs-target="#exampleModal"
-            >
+            <button class="btn btn-danger delete-button mx-2" type="button" data-bs-toggle="modal"
+              data-bs-target="#exampleModal">
               Delete Topic
             </button>
           </div>
@@ -152,14 +129,10 @@
 
         <div class="card-body">
           @if (!edible){
-          <app-configuration-details
-            [topic]="cfg?.[selectedTopic]"
-          ></app-configuration-details>
+          <app-configuration-details [topic]="cfg?.[selectedTopic]"></app-configuration-details>
           } @else {
-          <app-configuration-edit-form
-            [topic]="cfg?.[selectedTopic]"
-            [formByEntryKey]="topicForms.get(selectedTopic)"
-          ></app-configuration-edit-form>
+          <app-configuration-edit-form [topic]="cfg?.[selectedTopic]"
+            [formByEntryKey]="topicForms.get(selectedTopic)"></app-configuration-edit-form>
 
           }
         </div>
@@ -169,10 +142,7 @@
 </div>
 
 } @else {
-<div
-  class="d-flex justify-content-center align-items-center"
-  style="min-height: 300px"
->
+<div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
   <div class="d-flex flex-column align-items-center">
     <span class="spinner-border mb-2"></span>
     <p class="mb-0">Loading ...</p>
