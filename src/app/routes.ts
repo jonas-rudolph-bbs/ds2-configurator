@@ -3,7 +3,9 @@ import { ConfigurationOverview } from './features/configuration/pages/configurat
 import { ConfigurationState } from './features/configuration/pages/configuration-state';
 import { Ds2Homescreen } from './features/homescreen/ds2-homescreen';
 import { AppLayout } from './shared/layout/app-layout';
+import { ProfilingPage } from './features/profiling/pages/profiling-page';
 import { Ds2About } from './features/about/pages/about';
+import { NONE_TYPE } from '@angular/compiler';
 
 const routeConfig: Routes = [
   {
@@ -20,6 +22,13 @@ const routeConfig: Routes = [
       {path: 'about', component: Ds2About , title: 'About DDT'}
 
       ]
+  },
+  { path: '',
+    component: AppLayout,
+    title: 'Profiling',
+    children: [
+      { path: 'profiling', component: ProfilingPage, title: 'Profiling' },
+    ]
   }
 ];
 export default routeConfig;

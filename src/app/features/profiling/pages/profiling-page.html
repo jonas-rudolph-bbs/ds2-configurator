@@ -1,0 +1,60 @@
+<div class="container-fluid h-100 py-3">
+  <div class="row g-3 h-100">
+    <!-- Upload + error -->
+    <div class="col-12">
+      <ds2-profiling-upload
+        [loading]="loading()"
+        [error]="error()"
+        (submitUpload)="onUploadSubmit($event)">
+      </ds2-profiling-upload>
+    </div>
+
+    <!-- Main content (only after result) -->
+    <ng-container *ngIf="hasResult(); else emptyState">
+      <div class="col-12 col-lg-3">
+        <ds2-profiling-sidebar
+          [active]="section()"
+          (selectSection)="onSelectSection($event)">
+        </ds2-profiling-sidebar>
+      </div>
+
+      <div class="col-12 col-lg-9">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <ng-container [ngSwitch]="section()">
+              <ds2-profiling-summary
+                *ngSwitchCase="'summary'"
+                [result]="result()!">
+              </ds2-profiling-summary>
+
+              <ds2-profiling-columns
+                *ngSwitchCase="'columns'"
+                [result]="result()!">
+              </ds2-profiling-columns>
+
+              <ds2-profiling-anomalies
+                *ngSwitchCase="'anomalies'"
+                [result]="result()!">
+              </ds2-profiling-anomalies>
+
+              <ds2-profiling-rules
+                *ngSwitchCase="'rules'"
+                [result]="result()!">
+              </ds2-profiling-rules>
+
+              <div *ngSwitchDefault class="text-muted">Select a section.</div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template #emptyState>
+      <div class="col-12">
+        <div class="alert alert-secondary">
+          Upload a JSON file (or paste JSON) to generate a profiling report.
+        </div>
+      </div>
+    </ng-template>
+  </div>
+</div>

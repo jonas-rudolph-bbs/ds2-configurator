@@ -7,7 +7,7 @@ import { RouterLink } from "@angular/router";
   imports: [RouterLink],
   template: `
     <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1">
-      <h1 class="mt-5">Welcome to the DS2 Homescreen</h1>
+      <h1 class="mt-5">Welcome to the Data Detection and Transformation Module</h1>
       <button class="btn btn-ds2" [routerLink]="['/configurations']">Get Started</button>
     </div>
   `,

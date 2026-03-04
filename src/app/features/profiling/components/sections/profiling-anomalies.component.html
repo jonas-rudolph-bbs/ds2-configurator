@@ -1,0 +1,65 @@
+<div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-3">
+    <div>
+      <div class="h5 mb-1">Anomalies</div>
+      <div class="text-muted small">Preview of the most suspicious rows according to the backend model.</div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-7">
+      <div class="border rounded-3 overflow-hidden">
+        <table class="table table-sm mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 140px;">Score</th>
+              <th>Preview</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let a of result.anomalies_preview; let i = index"
+                role="button"
+                [class.table-active]="selectedIndex() === i"
+                (click)="select(i)">
+              <td class="font-monospace">{{ a.anomaly_score | number:'1.3-3' }}</td>
+              <td class="small text-muted">
+                {{ previewText(a.data) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="text-muted small mt-2" *ngIf="result.anomalies_preview.length === 0">
+        No anomalies preview returned by backend.
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-5">
+      <ng-container *ngIf="selectedRow(); else hint">
+        <div class="border rounded-3 p-3">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="h6 mb-0">Row details</div>
+            <span class="badge text-bg-warning">Score {{ selectedRow()!.anomaly_score | number:'1.3-3' }}</span>
+          </div>
+          <hr />
+          <div class="d-flex flex-column gap-2">
+            <div *ngFor="let k of keys(selectedRow()!.data)" class="d-flex justify-content-between gap-3">
+              <div class="text-muted small">{{ k }}</div>
+              <div class="font-monospace small text-end"
+                   [class.text-danger]="isMissing(selectedRow()!.data[k])">
+                {{ renderValue(selectedRow()!.data[k]) }}
+              </div>
+            </div>
+          </div>
+          <div class="text-muted small mt-3">
+            Missing values are highlighted in red.
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-template #hint>
+        <div class="alert alert-secondary">
+          Select an anomaly row to inspect the payload.
+        </div>
+      </ng-template>
+    </div>
+  </div>

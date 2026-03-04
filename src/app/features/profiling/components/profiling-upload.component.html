@@ -1,0 +1,62 @@
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div>
+                <div class="fw-semibold">Upload JSON for profiling</div>
+                <div class="text-muted small">Generate a profiling report (columns, anomalies, and rule candidates).
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm" type="button" [class.active]="mode() === 'file'"
+                    (click)="mode.set('file')">
+                    File upload
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" type="button" [class.active]="mode() === 'paste'"
+                    (click)="mode.set('paste')">
+                    Paste JSON
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-3" *ngIf="mode() === 'file'">
+            <div class="row g-2 align-items-end">
+                <div class="col-12 col-md-8">
+                    <label class="form-label small text-muted">JSON file</label>
+                    <input class="form-control" type="file" accept="application/json,.json"
+                        (change)="onFileChange($event)" placeholder="No File Selected"/>
+                        
+                    <div class="form-text" *ngIf="selectedFileName()">
+                        Selected: <span class="fw-semibold">{{ selectedFileName() }}</span>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 d-grid">
+                    <button class="btn btn-primary" type="button" [disabled]="loading || !selectedFile()"
+                        (click)="submitFile()">
+                        {{ loading ? 'Profiling…' : 'Profile file' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3" *ngIf="mode() === 'paste'">
+            <label class="form-label small text-muted">JSON payload</label>
+            <textarea class="form-control font-monospace" rows="6" [disabled]="loading" [(ngModel)]="pasted"
+                placeholder='Paste JSON here (object or array)…'></textarea>
+
+            <div class="d-flex justify-content-end mt-2">
+                <button class="btn btn-primary" type="button" [disabled]="loading || !pasted?.trim()"
+                    (click)="submitPasted()">
+                    {{ loading ? 'Profiling…' : 'Profile JSON' }}
+                </button>
+            </div>
+
+            <div class="form-text">
+                Tip: if parsing fails, you’ll get a backend error. We intentionally don’t “fix” broken JSON client-side.
+            </div>
+        </div>
+
+        <div class="alert alert-danger mt-3 mb-0" *ngIf="error">
+            {{ error }}
+        </div>
+    </div>
+</div>

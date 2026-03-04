@@ -1,0 +1,123 @@
+<div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-3">
+    <div>
+      <div class="h5 mb-1">Column profiles</div>
+      <div class="text-muted small">Click a column to inspect inferred types, missing rate, ranges, and patterns.</div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-6">
+      <div class="border rounded-3 overflow-hidden">
+        <table class="table table-sm mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Column</th>
+              <th class="text-end">Missing</th>
+              <th>Type</th>
+              <th class="text-end">Numeric</th>
+              <th class="text-end">Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let col of result.attr_cols"
+                role="button"
+                [class.table-active]="selectedCol() === col"
+                (click)="select(col)">
+              <td class="fw-semibold">{{ col }}</td>
+              <td class="text-end">{{ (profile(col)?.missing_rate ?? 0) | percent:'1.0-2' }}</td>
+              <td class="text-muted small">{{ typeSummary(profile(col)) }}</td>
+              <td class="text-end">
+                <span class="badge text-bg-light border">{{ (profile(col)?.numeric_rate ?? 0) | percent:'1.0-0' }}</span>
+              </td>
+              <td class="text-end">
+                <span class="badge text-bg-light border">{{ (profile(col)?.timestamp_rate ?? 0) | percent:'1.0-0' }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <ng-container *ngIf="selectedProfile(); else hint">
+        <div class="border rounded-3 p-3">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="h6 mb-0">{{ selectedCol() }}</div>
+            <span class="badge text-bg-secondary">{{ typeSummary(selectedProfile()!) }}</span>
+          </div>
+
+          <hr />
+
+          <div class="row g-3">
+            <div class="col-6">
+              <div class="text-muted small">Missing rate</div>
+              <div class="fw-semibold">{{ (selectedProfile()!.missing_rate ?? 0) | percent:'1.0-2' }}</div>
+            </div>
+            <div class="col-6">
+              <div class="text-muted small">Decimal mode</div>
+              <div class="fw-semibold">{{ selectedProfile()!.decimal_mode ?? '—' }}</div>
+            </div>
+
+            <div class="col-12" *ngIf="hasNumericHints(selectedProfile()!)">
+              <div class="fw-semibold mb-2">Suggested numeric ranges</div>
+              <div class="small text-muted mb-2">
+                These are backend suggestions for simple validation rules.
+              </div>
+              <div class="d-flex flex-column gap-2">
+                <div *ngIf="selectedProfile()!.suggested_quantile_range as r">
+                  <span class="badge text-bg-light border me-2">Quantile</span>
+                  <span class="font-monospace">{{ r?.[0] }} → {{ r?.[1] }}</span>
+                </div>
+                <div *ngIf="selectedProfile()!.suggested_irq_range as r">
+                  <span class="badge text-bg-light border me-2">IQR</span>
+                  <span class="font-monospace">{{ r?.[0] }} → {{ r?.[1] }}</span>
+                </div>
+                <div *ngIf="selectedProfile()!.suggested_mad_range as r">
+                  <span class="badge text-bg-light border me-2">MAD</span>
+                  <span class="font-monospace">{{ r?.[0] }} → {{ r?.[1] }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12" *ngIf="selectedProfile()!.regex_suggestion">
+              <div class="fw-semibold mb-2">Pattern suggestion</div>
+              <div class="font-monospace small bg-light border rounded-3 p-2">
+                {{ selectedProfile()!.regex_suggestion?.pattern }}
+              </div>
+            </div>
+
+            <div class="col-12" *ngIf="(selectedProfile()!.top_values?.length ?? 0) > 0">
+              <div class="fw-semibold mb-2">Top values</div>
+              <div class="border rounded-3 overflow-hidden">
+                <table class="table table-sm mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Value</th>
+                      <th class="text-end">Count</th>
+                      <th class="text-end">Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let tv of selectedProfile()!.top_values!.slice(0,10)">
+                      <td class="font-monospace small">{{ renderValue(tv[0]) }}</td>
+                      <td class="text-end">{{ tv[1] }}</td>
+                      <td class="text-end">{{ tv[1]/row_count()}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="text-muted small mt-2" *ngIf="selectedProfile()!.top_values!.length > 10">
+                Showing first 10 values.
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-template #hint>
+        <div class="alert alert-secondary">
+          Select a column on the left to see details.
+        </div>
+      </ng-template>
+    </div>
+  </div>
