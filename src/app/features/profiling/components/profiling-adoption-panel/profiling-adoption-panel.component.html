@@ -1,0 +1,40 @@
+<div *ngIf="((rules$ | async)?.length ?? 0) > 0" class="adoption-panel">
+
+  <div class="panel-header" (click)="toggle()">
+    Adopted rules ({{ (rules$ | async)?.length ?? 0 }})
+  </div>
+
+  <div *ngIf="expanded">
+
+    <div
+      *ngFor="let rule of (rules$ | async)"
+      class="rule-row">
+
+      <span class="column">{{rule.column}}</span>
+
+      <span class="label">
+        {{rule.previewLabel}}
+      </span>
+
+      <button
+        (click)="removeRule(rule.id)">
+        remove
+      </button>
+
+    </div>
+
+    <div class="panel-actions">
+
+      <button (click)="clearAll()">
+        Clear all
+      </button>
+
+      <button (click)="openConfig()">
+        Open as configuration
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

@@ -9,10 +9,12 @@
   },
   "private": true,
   "dependencies": {
+    "@angular/cdk": "^20.2.14",
     "@angular/common": "^20.2.0-next",
     "@angular/compiler": "^20.2.0-next",
     "@angular/core": "^20.2.0-next",
     "@angular/forms": "^20.2.0-next",
+    "@angular/material": "^20.2.14",
     "@angular/platform-browser": "^20.2.0-next",
     "@angular/router": "^20.2.0-next",
     "@popperjs/core": "^2.11.8",

@@ -1,62 +1,56 @@
 <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-3">
-    <div>
-      <div class="h5 mb-1">Rule candidates</div>
-      <div class="text-muted small">Backend-generated suggestions that you can convert into validation rules.</div>
-    </div>
+  <div>
+    <div class="h5 mb-1">Rule candidates</div>
+    <div class="text-muted small">Backend-generated suggestions that you can convert into validation rules.</div>
   </div>
+</div>
 
-  <div class="accordion" id="rulesAccordion" *ngIf="groups().length; else noRules">
-    <div class="accordion-item" *ngFor="let g of groups(); let gi = index">
-      <h2 class="accordion-header" [id]="'heading' + gi">
-        <button class="accordion-button" type="button"
-                [class.collapsed]="gi !== 0"
-                data-bs-toggle="collapse"
-                [attr.data-bs-target]="'#collapse' + gi"
-                [attr.aria-controls]="'collapse' + gi">
-          <span class="fw-semibold">{{ g.anomaly_class }}</span>
-          <span class="badge text-bg-light border ms-2">{{ g.rules.length }}</span>
-        </button>
-      </h2>
+<div class="accordion" *ngIf="groups().length; else noRules">
+  <div class="accordion-item" *ngFor="let g of groups(); let gi = index">
+    <h2 class="accordion-header">
+      <button type="button" class="accordion-button" [class.collapsed]="openIndex !== gi"
+        [attr.aria-expanded]="openIndex === gi" (click)="toggleAccordion(gi)">
+        <span class="fw-semibold">{{ g.anomaly_class }}</span>
+        <span class="badge text-bg-light border ms-2">{{ g.rules.length }}</span>
+      </button>
+    </h2>
 
-      <div [id]="'collapse' + gi"
-           class="accordion-collapse collapse"
-           [class.show]="gi === 0"
-           [attr.aria-labelledby]="'heading' + gi"
-           data-bs-parent="#rulesAccordion">
-        <div class="accordion-body">
-          <div class="d-flex flex-column gap-3">
-            <div class="border rounded-3 p-3" *ngFor="let r of g.rules">
-              <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
-                <div>
-                  <div class="fw-semibold">{{ r.attribute }}</div>
-                  <div class="font-monospace small">{{ r.suggested_rule }}</div>
-                </div>
-                <button type="button" class="btn btn-outline-primary btn-sm" disabled>
-                  Adopt rule
-                </button>
+    <div class="accordion-collapse collapse" [class.show]="openIndex === gi">
+      <div class="accordion-body">
+        <div class="d-flex flex-column gap-3">
+          <div class="border rounded-3 p-3" *ngFor="let r of g.rules">
+            <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+              <div>
+                <div class="fw-semibold">{{ r.attribute }}</div>
+                <div class="font-monospace small">{{ r.suggested_rule }}</div>
               </div>
+              <button type="button" class="btn btn-outline-primary btn-sm" (click)="adoptRule(r)">
+                Adopt rule
+              </button>
+            </div>
 
-              <div class="mt-2" *ngIf="r.evidence">
-                <div class="text-muted small mb-1">Evidence (preview)</div>
-                <div class="small">
-                  <div *ngFor="let kv of evidencePreview(r.evidence)">
-                    <span class="text-muted">{{ kv.key }}:</span>
-                    <span class="font-monospace">{{ kv.value }}</span>
-                  </div>
+            <div class="mt-2" *ngIf="r.evidence">
+              <div class="text-muted small mb-1">Evidence (preview)</div>
+              <div class="small">
+                <div *ngFor="let kv of evidencePreview(r.evidence)">
+                  <span class="text-muted">{{ kv.key }}:</span>
+                  <span class="font-monospace">{{ kv.value }}</span>
                 </div>
-                <div class="text-muted small mt-2" *ngIf="hasMoreEvidence(r.evidence)">
-                  Evidence is truncated for readability.
-                </div>
+              </div>
+              <div class="text-muted small mt-2" *ngIf="hasMoreEvidence(r.evidence)">
+                Evidence is truncated for readability.
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <ng-template #noRules>
-    <div class="alert alert-secondary">
-      No rule candidates returned by backend.
-    </div>
-  </ng-template>
+  </div>
+</div>
+
+<ng-template #noRules>
+  <div class="alert alert-secondary">
+    No rule candidates returned by backend.
+  </div>
+</ng-template>

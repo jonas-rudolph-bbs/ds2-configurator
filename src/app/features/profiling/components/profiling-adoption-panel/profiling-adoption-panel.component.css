@@ -1,0 +1,26 @@
+.adoption-panel {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.panel-header {
+  padding: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  background: #f3f3f3;
+}
+
+.rule-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 10px;
+}
+
+.panel-actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+}

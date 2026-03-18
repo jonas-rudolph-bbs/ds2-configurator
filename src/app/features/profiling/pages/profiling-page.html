@@ -16,9 +16,10 @@
           [active]="section()"
           (selectSection)="onSelectSection($event)">
         </ds2-profiling-sidebar>
+        <app-profiling-adoption-panel></app-profiling-adoption-panel>
       </div>
 
-      <div class="col-12 col-lg-9">
+      <div class="col-12 col-lg-9 h-100">
         <div class="card shadow-sm h-100">
           <div class="card-body">
             <ng-container [ngSwitch]="section()">

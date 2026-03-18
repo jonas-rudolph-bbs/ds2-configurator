@@ -10,6 +10,7 @@ import { ProfilingSummaryComponent } from '../components/sections/profiling-summ
 import { ProfilingColumnsComponent } from '../components/sections/profiling-columns.component';
 import { ProfilingAnomaliesComponent } from '../components/sections/profiling-anomalies.component';
 import { ProfilingRulesComponent } from '../components/sections/profiling-rules.component';
+import { ProfilingAdoptionPanelComponent } from '../components/profiling-adoption-panel/profiling-adoption-panel.component';
 
 @Component({
   standalone: true,
@@ -22,6 +23,7 @@ import { ProfilingRulesComponent } from '../components/sections/profiling-rules.
     ProfilingColumnsComponent,
     ProfilingAnomaliesComponent,
     ProfilingRulesComponent,
+    ProfilingAdoptionPanelComponent
   ],
   templateUrl: './profiling-page.html',
   styleUrls: ['./profiling-page.scss'],

@@ -1,7 +1,26 @@
-/* You can add global styles to this file, and also import other style files */
-
+@use '@angular/material' as mat;
 @use "bootstrap" as *;
 
+html {
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+body {
+  color-scheme: light;
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+  margin: 0;
+}
+
+/* You can add global styles to this file, and also import other style files */
 
 * {
   margin: 0;
@@ -81,9 +100,6 @@ body {
     border-color: var(--primary-color);
     color: var(--button-text-color);
   }
-
-
-
 }
 
 .card-ds2 {
@@ -106,24 +122,22 @@ body {
 .badge-pill {
   @extend .badge;
   border-radius: 10rem;
-  
 }
 
 /* === Sidebar nav (slight tweaks) === */
-/* Scope to your sidebar wrapper to avoid global changes */
 .nav-ds2 {
   background-color: var(--third-background-color);
   .nav.nav-pills {
     .nav-link {
-      background: transparent !important;     // keep background off
-      color: var(--bs-gray-600);   // subtle gray tone
-      border-radius: 0;            // crisp edges; remove if you prefer rounded
-      font-weight: 500;            // normal weight
+      background: transparent !important;
+      color: var(--bs-gray-600);
+      border-radius: 0;
+      font-weight: 500;
 
       &:hover,
       &:focus {
-        background: transparent;   // still no background on hover/focus
-        color: var(--bs-gray-700); // a touch darker on hover
+        background: transparent;
+        color: var(--bs-gray-700);
         text-decoration: none;
         box-shadow: none;
       }
@@ -131,21 +145,19 @@ body {
       &.active,
       &.active:focus,
       &.active:hover {
-        background: transparent !important; // ensure no fill
+        background: transparent !important;
         color: var(--secondary-color) !important;
-        font-weight: 700;                   // “thicker” text
+        font-weight: 700;
         box-shadow: none;
       }
     }
   }
 }
 
-/* Optional: subtle active indicator bar without a background fill.
-   Comment out if you want text-only. */
 .nav-ds2 .nav.nav-pills .nav-link.active {
   border-left: .25rem solid var(--bs-secondary);
-  margin-left: -.25rem;                 // keep text aligned
-  padding-left: calc(1rem - .25rem);    // compensate for the bar
+  margin-left: -.25rem;
+  padding-left: calc(1rem - .25rem);
 }
 
 .list-group-ds2{
@@ -192,3 +204,5 @@ body {
   }
 }
 
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

@@ -64,6 +64,7 @@ export class ConfigurationState implements OnInit {
 
   // On component init, load configuration state
   ngOnInit(): void {
+    const navState = history.state;
     this.route.paramMap
       .pipe(
         map((p) => p.get("id")),
@@ -77,7 +78,24 @@ export class ConfigurationState implements OnInit {
       .subscribe({
         next: (cfg) => {
           if (!cfg) {
-            console.warn("No configuration found for id:", this.id);
+            console.warn("No configuration found for id test:", this.id);
+
+            const adoptedRules = navState?.adoptedRules;
+            const topicName = navState?.topicName;
+
+            if (adoptedRules && topicName) {
+              const tempCfg = this.buildTopicsMapFromAdoptedRules(topicName, adoptedRules);
+
+              this.cfg = tempCfg;
+              this.topics = Object.entries(tempCfg);
+              this.buildTopicForms(tempCfg);
+              this.selectedTopic = topicName;
+              this.configCreation = true;
+              this.edible = true;
+
+              return;
+            }
+
             this.configCreation = true;
             return;
           }
@@ -265,6 +283,38 @@ export class ConfigurationState implements OnInit {
 
       this.topicForms.set(topicName, formsByEntryKey);
     }
+  }
+
+  private buildTopicsMapFromAdoptedRules(topicName: string, adoptedRules: any[]): any {
+    const topicDefinition: Record<string, any[]> = {};
+
+    for (const adoptedRule of adoptedRules) {
+      if (!adoptedRule?.mappingSupported || !adoptedRule?.mappedExpectation) {
+        continue;
+      }
+
+      const expectationType = adoptedRule.mappedExpectation.expectation_type;
+      const kwargs = adoptedRule.mappedExpectation.kwargs ?? {};
+      const column = adoptedRule.column ?? kwargs.column;
+
+      if (!column) {
+        continue;
+      }
+
+      if (!topicDefinition[column]) {
+        topicDefinition[column] = [];
+      }
+
+      topicDefinition[column].push({
+        rule: expectationType,
+        params: kwargs,
+        handler: ''
+      });
+    }
+
+    return {
+      [topicName]: topicDefinition
+    };
   }
 
   onTopicDeleteClick(): void {
