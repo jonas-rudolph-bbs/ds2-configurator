@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { ProfilingAdoptionService } from '../../services/profiling-adoption.service';
 
 @Component({
@@ -12,12 +13,29 @@ import { ProfilingAdoptionService } from '../../services/profiling-adoption.serv
 })
 export class ProfilingAdoptionPanelComponent {
   expanded = false;
+  flashBody = false;
   rules$ = this.adoptionService.getRules();
+
+  private previousCount = 0;
+  private sub?: Subscription;
+  private flashTimeout?: ReturnType<typeof setTimeout>;
 
   constructor(
     private adoptionService: ProfilingAdoptionService,
     private router: Router
   ) {}
+
+  ngOnInit() {
+    this.sub = this.rules$.subscribe(rules => {
+      const currentCount = rules.length;
+
+      if (currentCount > this.previousCount) {
+        this.triggerFlash();
+      }
+
+      this.previousCount = currentCount;
+    });
+  }
 
   toggle() {
     this.expanded = !this.expanded;
@@ -29,6 +47,21 @@ export class ProfilingAdoptionPanelComponent {
 
   clearAll() {
     this.adoptionService.clear();
+  }
+
+  private triggerFlash() {
+    this.flashBody = false;
+
+    if (this.flashTimeout) {
+      clearTimeout(this.flashTimeout);
+    }
+
+    setTimeout(() => {
+      this.flashBody = true;
+      this.flashTimeout = setTimeout(() => {
+        this.flashBody = false;
+      }, 700);
+    });
   }
 
   openConfig() {

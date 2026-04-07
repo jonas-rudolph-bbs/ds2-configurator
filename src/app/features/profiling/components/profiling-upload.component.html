@@ -15,6 +15,9 @@
                     (click)="mode.set('paste')">
                     Paste JSON
                 </button>
+                <button class="btn btn-outline-secondary btn-sm" type="button">
+                    CSV upload                </button>
+
             </div>
         </div>
 
@@ -30,7 +33,7 @@
                     </div>
                 </div>
                 <div class="col-12 col-md-4 align-items-center d-grid">
-                    <button class="btn btn-primary" type="button" [disabled]="loading || !selectedFile()"
+                    <button class="btn btn-ds2" type="button" [disabled]="loading || !selectedFile()"
                         (click)="submitFile()">
                         {{ loading ? 'Profiling…' : 'Profile file' }}
                     </button>
@@ -44,7 +47,7 @@
                 placeholder='Paste JSON here (object or array)…'></textarea>
 
             <div class="d-flex justify-content-end mt-2">
-                <button class="btn btn-primary" type="button" [disabled]="loading || !pasted?.trim()"
+                <button class="btn btn-ds2" type="button" [disabled]="loading || !pasted?.trim()"
                     (click)="submitPasted()">
                     {{ loading ? 'Profiling…' : 'Profile JSON' }}
                 </button>

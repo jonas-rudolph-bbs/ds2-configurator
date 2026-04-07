@@ -1,0 +1,26 @@
+<div class="card shadow-sm mb-3">
+  <div class="card-header">
+    <h5 class="card-title mb-0">Reports</h5>
+  </div>
+  <div class="card-body p-0">
+
+    <div class="list-group list-group-ds2">
+      <button type="button" class="list-group-item list-group-item-action" [class.active]="active === 'summary'"
+        (click)="select('summary')">
+        Summary
+      </button>
+      <button type="button" class="list-group-item list-group-item-action" [class.active]="active === 'columns'"
+        (click)="select('columns')">
+        Columns
+      </button>
+      <button type="button" class="list-group-item list-group-item-action" [class.active]="active === 'anomalies'"
+        (click)="select('anomalies')">
+        Anomalies
+      </button>
+      <button type="button" class="list-group-item list-group-item-action" [class.active]="active === 'rules'"
+        (click)="select('rules')">
+        Rule candidates
+      </button>
+    </div>
+  </div>
+</div>

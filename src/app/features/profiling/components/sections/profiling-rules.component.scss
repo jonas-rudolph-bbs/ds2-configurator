@@ -1,0 +1,19 @@
+.accordion-button {
+  background-color: var(--third-background-color);
+  color: var(--text-color);
+  transition: background-color 0.2s ease;
+}
+
+.accordion-button:hover {
+  background-color: var(--primary-color-40);
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: var(--primary-color-40);
+  color: var(--text-color);
+}
+

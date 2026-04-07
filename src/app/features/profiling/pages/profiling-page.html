@@ -21,6 +21,21 @@
 
       <div class="col-12 col-lg-9 h-100">
         <div class="card shadow-sm h-100">
+          <ng-container [ngSwitch]="section()">
+            <div *ngSwitchCase="'summary'" class="card-header">
+              <h5 class="card-title mb-0">Dataset Summary</h5>
+            </div>
+            <div *ngSwitchCase="'columns'" class="card-header">
+              <h5 class="card-title mb-0">Column profiles</h5>
+            </div>
+            <div *ngSwitchCase="'anomalies'" class="card-header">
+              <h5 class="card-title mb-0">Anomalies</h5>
+            </div>
+            <div *ngSwitchCase="'rules'" class="card-header">
+              <h5 class="card-title mb-0">Rule candidates</h5>
+            </div>
+          </ng-container>
+
           <div class="card-body">
             <ng-container [ngSwitch]="section()">
               <ds2-profiling-summary

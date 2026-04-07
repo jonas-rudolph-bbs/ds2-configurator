@@ -13,6 +13,7 @@ interface RuleGroup {
   selector: 'ds2-profiling-rules',
   imports: [CommonModule],
   templateUrl: './profiling-rules.component.html',
+  styleUrl: './profiling-rules.component.scss'
 })
 export class ProfilingRulesComponent {
 
@@ -168,20 +169,58 @@ export class ProfilingRulesComponent {
     };
   }
 
-  evidencePreview(evidence: Record<string, any>): Array<{ key: string; value: string }> {
-    const entries = Object.entries(evidence ?? {});
-    // Drop huge arrays (like regex_examples) from inline rendering, but keep a count.
-    const normalized = entries.map(([k, v]) => {
-      if (Array.isArray(v)) {
-        return [k, `Array(${v.length})`] as const;
-      }
-      if (typeof v === 'object' && v !== null) {
-        return [k, JSON.stringify(v)] as const;
-      }
-      return [k, String(v)] as const;
-    });
+  evidencePreview(
+    evidence: Record<string, unknown> | null | undefined
+  ): Array<{ key: string; value: string }> {
+    if (!evidence || typeof evidence !== 'object') {
+      return [];
+    }
 
-    return normalized.slice(0, 6).map(([key, value]) => ({ key, value }));
+    const rows: Array<{ key: string; value: string }> = [];
+
+    for (const [key, value] of Object.entries(evidence)) {
+      this.pushEvidenceRow(rows, key, value);
+    }
+
+    return rows;
+  }
+
+  private pushEvidenceRow(
+    rows: Array<{ key: string; value: string }>,
+    key: string,
+    value: unknown
+  ): void {
+    if (Array.isArray(value)) {
+      // special case for regex examples
+      if (key === 'regex_examples') {
+        const preview = value.slice(0, 4).map(v => String(v)).join(', ');
+        rows.push({
+          key,
+          value: value.length > 4 ? `${preview} …` : preview
+        });
+        return;
+      }
+
+      // range-like arrays such as [min, max]
+      rows.push({
+        key,
+        value: value.map(v => String(v)).join(', ')
+      });
+      return;
+    }
+
+    if (value && typeof value === 'object') {
+      // flatten one level deeper
+      for (const [nestedKey, nestedValue] of Object.entries(value as Record<string, unknown>)) {
+        this.pushEvidenceRow(rows, `${key}.${nestedKey}`, nestedValue);
+      }
+      return;
+    }
+
+    rows.push({
+      key,
+      value: String(value)
+    });
   }
 
   hasMoreEvidence(evidence: Record<string, any>): boolean {
@@ -213,6 +252,6 @@ export class ProfilingRulesComponent {
   }
 
   toggleAccordion(index: number): void {
-  this.openIndex = this.openIndex === index ? -1 : index;
-}
+    this.openIndex = this.openIndex === index ? -1 : index;
+  }
 }
