@@ -54,6 +54,7 @@ export class ProfilingRulesComponent {
         return this.mapMissingness(candidate);
 
       case 'schema_refinement/timestamp':
+        return this.mapTimestampConstraint(candidate);
       case 'precision/scale_drift':
       default:
         return {
@@ -164,6 +165,34 @@ export class ProfilingRulesComponent {
         expectation_type: 'expect_column_values_to_not_be_null',
         kwargs: {
           column
+        }
+      }
+    };
+  }
+
+  private mapTimestampConstraint(candidate: any) {
+    const column = candidate?.attribute;
+
+    if (!column) {
+      return {
+        supported: false,
+        label: 'unsupported',
+        preview: 'No direct expectation mapping available.',
+        expectation: undefined
+      };
+    }
+
+    return {
+      supported: true,
+      label: 'timestamp',
+      preview:
+        `expect_column_values_to_be_timestamps(` +
+        `column="${column}")`,
+      expectation: {
+        expectation_type: 'expect_column_values_to_match_regex',
+        kwargs: {
+          column,
+          regex: '^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:?\\d{2})?)?$'
         }
       }
     };
