@@ -1,105 +1,130 @@
 <!-- configuration-edit-form.html -->
 
 <div class="p-3">
-  @if (formByEntryKey; as map) { @for (entry of map | keyvalue; track entry.key)
-  {
-  <!-- A section for each attribute-->
+  @if (formByEntryKey; as map) {
+  @for (entry of map | keyvalue; track entry.key) {
+  <!-- A section for each attribute -->
   <section class="mb-4">
-    @if (getFormsFor(entry.key)?.length) { @for (fg of getFormsFor(entry.key);
-    track $index) {
+    @if (getFormsFor(entry.key); as forms) {
     <div class="d-flex flex-row-reverse">
-      <button class="delete-cross-button" (click)="onDeleteAttributeClick(entry.key)">
+      <button type="button" class="delete-cross-button" (click)="onDeleteAttributeClick(entry.key)">
         x
       </button>
     </div>
-    <form class="card mb-3" [formGroup]="fg">
-      <!-- Attribute name -->
-      <input class="form-control form-control-ds2 attribute-input-ds2" formControlName="attName"
-        [class.is-invalid]="fg.get('attName')?.invalid && (fg.get('attName')?.touched)" aria-label="Attribute name" />
-      <div class="invalid-feedback d-block" *ngIf="fg.get('attName')?.invalid && (fg.get('attName')?.touched)">
-        <div *ngIf="fg.get('attName')?.hasError('trimmedRequired')">Attribute name is required.</div>
-        <div *ngIf="fg.get('attName')?.hasError('notUnique')">Attribute name must be unique.</div>
-        <div *ngIf="fg.get('attName')?.hasError('maxlength')">Attribute name is too long.</div>
-        <div *ngIf="fg.get('attName')?.hasError('noWhitespace')">Attribute name must not contain whitespace.</div>
+
+    <div class="card mb-3">
+      <!-- Attribute name only once -->
+      <div class="p-3" [formGroup]="forms[0]">
+        <input class="form-control form-control-ds2 attribute-input-ds2" formControlName="attName"
+          [class.is-invalid]="forms[0].get('attName')?.invalid && forms[0].get('attName')?.touched"
+          aria-label="Attribute name" />
+
+        <div class="invalid-feedback d-block"
+          *ngIf="forms[0].get('attName')?.invalid && forms[0].get('attName')?.touched">
+          <div *ngIf="forms[0].get('attName')?.hasError('trimmedRequired')">
+            Attribute name is required.
+          </div>
+          <div *ngIf="forms[0].get('attName')?.hasError('notUnique')">
+            Attribute name must be unique.
+          </div>
+          <div *ngIf="forms[0].get('attName')?.hasError('maxlength')">
+            Attribute name is too long.
+          </div>
+          <div *ngIf="forms[0].get('attName')?.hasError('noWhitespace')">
+            Attribute name must not contain whitespace.
+          </div>
+        </div>
       </div>
 
       <div class="card-body">
-        <div class="row g-3">
-          <!-- Rule -->
-          <div class="col-md-6">
+        @for (fg of forms; track $index) {
+        <div class="rule-block" [formGroup]="fg">
+          <div class="row g-3">
+            <!-- Rule -->
+            <div class="col-md-6">
+              <div class="d-flex align-items-center gap-1 mb-1">
+                <label class="form-control-sm text-muted fw-semibold p-0"
+                  [attr.for]="'rule-' + entry.key + '-' + $index">
+                  Expectation Rule
+                </label>
 
-            <div class="d-flex align-items-center gap-1 mb-1">
+                <button type="button" class="btn btn-link p-0 text-muted" (click)="onInfoClicked(fg)"
+                  aria-label="Rule info" style="position: relative; top: -6px">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm1 15h-2v-6h2Zm0-8h-2V7h2Z" />
+                  </svg>
+                </button>
+              </div>
 
-              <label class="form-control-sm text-muted fw-semibold p-0" [attr.for]="'rule'+ entry.key">
-                Expectation Rule
+              <select class="form-select form-control-ds2 rule-dropdown-ds2 fw-semibold" formControlName="rule"
+                aria-label="Rule" [id]="'rule-' + entry.key + '-' + $index">
+                @for (r of rules; track r) {
+                <option [value]="r.id">{{ r.label }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Handler -->
+            <div class="col-md-6">
+              <div class="d-flex align-items-center gap-1 mb-1">
+                <label class="form-control-sm text-muted fw-semibold p-0"
+                  [attr.for]="'handler-' + entry.key + '-' + $index">
+                  Handler
+                </label>
+              </div>
+
+              <select class="form-select-sm form-control-ds2 handler-dropdown-ds2" formControlName="handler"
+                aria-label="Handler" [id]="'handler-' + entry.key + '-' + $index">
+                @for (handler of handlers; track handler.id) {
+                <option [value]="handler.id">{{ handler.label }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <!-- Dynamic params -->
+          <div class="mt-3" formGroupName="params">
+            @for (paramKey of paramKeys(fg); track paramKey) {
+            <div class="row g-2 align-items-center mb-2">
+              <label class="col-sm-4 col-form-label col-form-label-sm text-muted fw-semibold"
+                [attr.for]="'param-' + entry.key + '-' + $index + '-' + paramKey">
+                {{ paramKey }}
               </label>
 
-              <button type="button" class="btn btn-link p-0 text-muted" (click)="onInfoClicked(fg)" aria-label="Rule info" style="position: relative; top: -6px">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm1 15h-2v-6h2Zm0-8h-2V7h2Z" />
-                </svg>
-              </button>
-
-
+              <div class="col-sm-8">
+                <input class="form-control form-control-sm form-control-ds2 params-input-ds2"
+                  [id]="'param-' + entry.key + '-' + $index + '-' + paramKey" [formControlName]="paramKey" />
+              </div>
             </div>
-
-            <select class="form-select form-control-ds2 rule-dropdown-ds2 fw-semibold" formControlName="rule"
-              aria-label="Rule" [id]="'rule'+ entry.key">
-              @for (r of rules; track r) {
-              <option [value]="r.id">{{ r.label }}</option>
-              }
-            </select>
-
-          </div>
-
-          <!-- Handler -->
-          <div class="col-md-6">
-            <div class="d-flex align-items-center gap-1 mb-1">
-              <label class="form-control-sm text-muted fw-semibold p-0"
-                [attr.for]="'handler'+ entry.key">Handler</label>
-            </div>
-            <select class="form-select-sm form-control-ds2 handler-dropdown-ds2" formControlName="handler"
-              aria-label="Handler">
-              @for (handler of handlers; track handler.id){
-              <option [value]="handler.id">{{ handler.label }}</option>
-              }
-            </select>
+            }
           </div>
         </div>
 
-        <!-- Dynamic params -->
-        <div class="mt-3" formGroupName="params">
-          @for (paramKey of paramKeys(fg); track paramKey) {
-          <div class="row g-2 align-items-center mb-2">
-            <label class="col-sm-4 col-form-label col-form-label-sm text-muted fw-semibold"
-              [attr.for]="'param-' + entry.key + '-' + $index + '-' + paramKey">
-              {{ paramKey }}
-            </label>
-            <div class="col-sm-8">
-              <input class="form-control form-control-sm form-control-ds2 params-input-ds2"
-                [id]="'param-' + entry.key + '-' + $index + '-' + paramKey" [formControlName]="paramKey" />
-            </div>
-          </div>
-          }
-        </div>
+        @if ($index
+        < forms.length - 1) { <hr class="rule-divider" />
+        }
+        }
       </div>
-    </form>
-    } }
+    </div>
+    }
   </section>
-
   }
+
   <section>
     <div class="card">
-      <button class="btn btn-ds2 btn-sm btn-outline-ds2" style="border-color: transparent" (click)="onAddRuleClick()">
+      <button type="button" class="btn btn-ds2 btn-sm btn-outline-ds2" style="border-color: transparent"
+        (click)="onAddRuleClick()">
         + Add a new Rule
       </button>
     </div>
   </section>
   } @else {
   <p class="text-muted">Select a topic or add one to see its configuration.</p>
+
   <section>
     <div class="card">
-      <button class="btn btn-ds2 btn-sm btn-outline-ds2" style="border-color: transparent" (click)="onAddRuleClick()">
+      <button type="button" class="btn btn-ds2 btn-sm btn-outline-ds2" style="border-color: transparent"
+        (click)="onAddRuleClick()">
         + Add a new Rule
       </button>
     </div>
