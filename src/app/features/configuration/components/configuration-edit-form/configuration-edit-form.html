@@ -1,7 +1,7 @@
 <div class="p-3">
   @if (formByEntryKey; as map) {
 
-  @for (entry of map | keyvalue; track entry.key) {
+  @for (entry of map | keyvalue: keepOriginalOrder; track entry.key) {
   <section class="mb-4">
 
     @if (getAttributeForm(entry.key); as attrForm) {

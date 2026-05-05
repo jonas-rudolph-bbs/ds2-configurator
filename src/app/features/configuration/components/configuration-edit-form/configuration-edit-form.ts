@@ -118,4 +118,6 @@ export class ConfigurationEditForm {
     return arr.controls as FormGroup[];
   }
 
+  keepOriginalOrder = (): number => 0;
+
 }
