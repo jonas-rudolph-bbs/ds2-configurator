@@ -1,13 +1,13 @@
 // configuration-edit-form.ts
 import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
-import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import { FormBuilder, FormGroup, ReactiveFormsModule, FormArray } from "@angular/forms";
 import { CommonModule, KeyValuePipe } from "@angular/common";
+import { ConfigurationFormFactory } from "../../forms/configuration-form.factory";
 import {
   TopicDefinition,
   RULES,
   HANDLERS,
-  RuleName,
-  RULE_PARAMS_MAP,
+  RuleSpec
 } from "../../services/configuration.types";
 
 type Rule = (typeof RULES)[number];
@@ -22,16 +22,19 @@ type Rule = (typeof RULES)[number];
 })
 export class ConfigurationEditForm {
   @Input() topic: TopicDefinition | undefined;
-  @Input() formByEntryKey: Map<string, FormGroup[]> | undefined;
+  @Input() formByEntryKey?: Map<string, FormGroup>;
 
   readonly rules: readonly Rule[] = RULES;
   readonly handlers: readonly { id: string; label: string }[] = HANDLERS;
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private formFactory: ConfigurationFormFactory) { }
 
-  // Public getter for the template
-  getFormsFor(entryKey: string): FormGroup[] {
-    return this.formByEntryKey?.get(entryKey) ?? [];
+  getAttributeForm(entryKey: string): FormGroup | null {
+    return this.formByEntryKey?.get(entryKey) ?? null;
+  }
+
+  getRulesArray(attrForm: FormGroup): FormArray {
+    return attrForm.get('rules') as FormArray;
   }
 
   // helpers to get param keys from a FormGroup
@@ -40,81 +43,79 @@ export class ConfigurationEditForm {
     return params ? Object.keys(params.controls) : [];
   }
 
-  onDeleteAttributeClick(attributeKey: string): void {
+  private deleteAttribute(attributeKey: string): void {
     this.formByEntryKey?.delete(attributeKey);
   }
 
-  onAddRuleClick(): void {
+  onAddAttributeClick(): void {
     if (!this.formByEntryKey) {
       return;
     }
 
-    // 1) Create a unique entryKey for the new attribute
     const base = "newAttribute";
     let index = 1;
     let entryKey = `${base}${index}`;
+
     while (this.formByEntryKey.has(entryKey)) {
       index++;
       entryKey = `${base}${index}`;
     }
 
-    // 2) Default rule + handler (first in the dropdowns)
-    const defaultRule = this.rules[0]?.id as RuleName;
-    const defaultHandler = this.handlers[0]?.id ?? "";
+    const getAllAttributeNames = () =>
+      Array.from(this.formByEntryKey?.values() ?? [])
+        .map((fg) => (fg.get("attName")?.value ?? "").toString());
 
-    // 3) Build the FormGroup just like buildRuleForm does
-    const fg = this.fb.group({
-      attName: this.fb.control(entryKey ?? ""), // shown in the UI
-      rule: this.fb.control(defaultRule), // RuleName
-      handler: this.fb.control(defaultHandler),
-      params: this.fb.group({}), // will be filled below
-      _entryKey: this.fb.control(entryKey),
-    });
+    const initialRules: RuleSpec[] = [{} as RuleSpec];
 
-    // keep params in sync when the rule changes
-    fg.get("rule")!.valueChanges.subscribe((newRule) => {
-      this.syncParamsForRule(fg, newRule as RuleName);
-    });
+    const attrForm = this.formFactory.buildAttributeForm(
+      entryKey,
+      getAllAttributeNames,
+      initialRules
+    );
 
-    // initialize params for the default rule
-    this.syncParamsForRule(fg, defaultRule);
-
-    // 4) Insert as a **new attribute** with a single rule
-    this.formByEntryKey.set(entryKey, [fg]);
-
+    this.formByEntryKey.set(entryKey, attrForm);
   }
 
-  private syncParamsForRule(fg: FormGroup, selectedRule: RuleName): void {
-    if (!selectedRule) {
-      fg.setControl("params", this.fb.group({}));
-      return;
-    }
-
-    const template = RULE_PARAMS_MAP[selectedRule];
-    if (!template) {
-      fg.setControl("params", this.fb.group({}));
-      return;
-    }
-
-    type ParamKey = keyof typeof template;
-
-    const newParamsGroup = this.fb.group({});
-
-    (Object.keys(template) as ParamKey[]).forEach((key) => {
-      newParamsGroup.addControl(key as string, this.fb.control(""));
-    });
-
-    fg.setControl("params", newParamsGroup);
-  }
 
   onInfoClicked(fg: FormGroup): void {
-  const selectedRule = fg.get("rule")?.value as string | null | undefined;
+    const selectedRule = fg.get("rule")?.value as string | null | undefined;
 
-  if (!selectedRule) {
-    return;
+    if (!selectedRule) {
+      return;
+    }
+    const url = `https://greatexpectations.io/expectations/${selectedRule}/`;
+    window.open(url, "_blank", "noopener,noreferrer");
   }
-  const url = `https://greatexpectations.io/expectations/${selectedRule}/`;
-  window.open(url, "_blank", "noopener,noreferrer");
-}
+
+  onAddRuleClick(entryKey: string): void {
+    const attrForm = this.formByEntryKey?.get(entryKey);
+    const rules = attrForm?.get("rules") as FormArray | null;
+
+    if (!rules) {
+      return;
+    }
+
+    rules.push(this.formFactory.buildRuleFormWithoutAttName());
+  }
+
+  onDeleteRuleClick(entryKey: string, index: number): void {
+    const attrForm = this.formByEntryKey?.get(entryKey);
+    const rules = attrForm?.get("rules") as FormArray | null;
+
+    if (!rules) {
+      return;
+    }
+
+    rules.removeAt(index);
+
+    if (rules.length === 0) {
+      this.deleteAttribute(entryKey);
+    }
+  }
+
+  getRuleFormGroups(attrForm: FormGroup): FormGroup[] {
+    const arr = attrForm.get('rules') as FormArray;
+    return arr.controls as FormGroup[];
+  }
 
 }

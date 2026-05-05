@@ -38,7 +38,7 @@ export class ConfigurationFormFactory {
     return (control: AbstractControl): ValidationErrors | null => {
       const v = control.value;
       const hasSpace = v.match(/\s/) !== null;
-      return hasSpace ? { noWhitespace : true} : null;
+      return hasSpace ? { noWhitespace: true } : null;
     }
   }
 
@@ -117,6 +117,55 @@ export class ConfigurationFormFactory {
       const currentParams = (fg.get("params") as FormGroup).value;
       fg.setControl("params", this.buildParamsGroup(newRule, currentParams));
       // keep validity up-to-date after rebuilding controls
+      fg.get("params")!.updateValueAndValidity({ emitEvent: false });
+      fg.updateValueAndValidity({ emitEvent: false });
+    });
+
+    return fg;
+  }
+
+  buildAttributeForm(
+    entryKey: string,
+    getAllAttributeNames: () => string[],
+    rules: RuleSpec[] = []
+  ): FormGroup {
+    return this.fb.group({
+      attName: new FormControl<string>(entryKey, {
+        nonNullable: true,
+        validators: [
+          this.trimmedRequired(),
+          this.uniqueAmong(getAllAttributeNames, (s) => s.trim().toLowerCase()),
+          this.noWhitespace(),
+          Validators.maxLength(200),
+        ],
+      }),
+
+      rules: this.fb.array<FormGroup>(
+        rules.map((spec) => this.buildRuleFormWithoutAttName(spec))
+      ),
+    });
+  }
+
+  buildRuleFormWithoutAttName(spec?: RuleSpec): FormGroup {
+    const initialRule = (spec?.rule ?? "") as RuleName;
+
+    const fg = this.fb.group({
+      rule: new FormControl<RuleName>(initialRule, {
+        nonNullable: true,
+        validators: [this.trimmedRequired()],
+      }),
+
+      handler: new FormControl<string>(spec?.handler ?? "", {
+        nonNullable: true,
+        validators: [Validators.maxLength(200)],
+      }),
+
+      params: this.buildParamsGroup(initialRule, spec?.params),
+    });
+
+    fg.get("rule")!.valueChanges.subscribe((newRule) => {
+      const currentParams = (fg.get("params") as FormGroup).value;
+      fg.setControl("params", this.buildParamsGroup(newRule, currentParams));
       fg.get("params")!.updateValueAndValidity({ emitEvent: false });
       fg.updateValueAndValidity({ emitEvent: false });
     });

@@ -7,19 +7,15 @@ import { ConfigurationService } from "../services/configuration.service";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ConfigurationDetails } from "../components/configuration-details/configuration-details";
 import { ConfigurationEditForm } from "../components/configuration-edit-form/configuration-edit-form";
-import { ConfigurationFormFactory } from "../forms/configuration-form.factory";
+import { ConfigurationFormMapper } from "../forms/configuration-form.mapper";
 import {
-  FormBuilder,
   FormGroup,
   FormControl,
   ReactiveFormsModule,
 } from "@angular/forms";
 import {
   TopicDefinition,
-  TopicsMap,
-  RuleSpec,
-  RuleName,
-  RULE_PARAMS_MAP,
+  TopicsMap
 } from "../services/configuration.types";
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -43,9 +39,8 @@ export class ConfigurationState implements OnInit {
   private route = inject(ActivatedRoute);
   private svc = inject(ConfigurationService);
   private destroyRef = inject(DestroyRef);
-  private formFactory = inject(ConfigurationFormFactory);
+  private formMapper = inject(ConfigurationFormMapper);
 
-  private fb = inject(FormBuilder);
 
   // state from backend
   id: string | null = null;
@@ -57,7 +52,7 @@ export class ConfigurationState implements OnInit {
   isSaving: boolean = false;
   configCreation: boolean | null = null;
 
-  topicForms = new Map<string, Map<string, FormGroup[]>>();
+  topicForms = new Map<string, Map<string, FormGroup>>();
   topicNameControls = new Map<string, FormControl<string>>();
   originalTopicNames = new Map<string, string>();
   saveAttempted = false;
@@ -86,10 +81,7 @@ export class ConfigurationState implements OnInit {
             if (adoptedRules && topicName) {
               const tempCfg = this.buildTopicsMapFromAdoptedRules(topicName, adoptedRules);
 
-              this.cfg = tempCfg;
-              this.topics = Object.entries(tempCfg);
-              this.buildTopicForms(tempCfg);
-              this.selectedTopic = topicName;
+              this.applyFormStateFromTopics(tempCfg, topicName);
               this.configCreation = true;
               this.edible = true;
 
@@ -100,17 +92,8 @@ export class ConfigurationState implements OnInit {
             return;
           }
           this.configCreation = false;
-          this.cfg = cfg.topics;
-          this.topics = Object.entries(cfg.topics);
 
-          this.initTopicNameControls();
-
-          // Prebuild forms for all topics
-          this.buildTopicForms(cfg.topics);
-
-          if (this.topics && this.topics.length > 0) {
-            this.selectedTopic = this.topics[0][0];
-          }
+          this.applyFormStateFromTopics(cfg.topics);
         },
       });
   }
@@ -135,81 +118,36 @@ export class ConfigurationState implements OnInit {
     return ctrl;
   }
 
+  private applyFormStateFromTopics(
+    topicsMap: TopicsMap,
+    selectedTopic?: string
+  ): void {
+    const formState = this.formMapper.buildFormStateFromTopics(topicsMap);
+
+    this.cfg = topicsMap;
+    this.topics = formState.topics;
+    this.topicForms = formState.topicForms;
+    this.topicNameControls = formState.topicNameControls;
+    this.originalTopicNames = formState.originalTopicNames;
+    this.selectedTopic = selectedTopic ?? formState.selectedTopic;
+  }
+
   // Save button handler
   onSaveClicked(): void {
     if (!this.id) {
       console.warn("Cannot save: no id in route");
       return;
     }
-
     this.saveAttempted = true;
 
-    // 1. Validate all forms
-    let allValid = true;
-
-    // validate topic name controls
-    for (const ctrl of this.topicNameControls.values()) {
-      ctrl.markAsTouched();
-      if (ctrl.invalid) {
-        allValid = false;
-      }
-    }
-
-    // validate all rule forms
-    for (const formsByEntryKey of this.topicForms.values()) {
-      for (const groups of formsByEntryKey.values()) {
-        for (const fg of groups) {
-          fg.markAllAsTouched();
-          console.log("Attribute Formgroup:", fg.invalid);
-          if (fg.invalid) {
-            allValid = false;
-          }
-        }
-      }
-    }
-
+    const allValid = this.formMapper.validateAll(this.topicNameControls, this.topicForms);
     if (!allValid) {
-      console.warn("Not saving: some forms are invalid");
+      console.warn("Validation failed. Please fix the errors and try again.");
       return;
     }
 
-    const topicNameMap = new Map<string, string>();
-    for (const [topicName] of this.topics) {
-      const ctrl = this.getTopicNameControl(topicName);
-      const newName = ctrl.value.trim();
-      const finalName = newName || topicName;
-      topicNameMap.set(topicName, finalName);
-    }
 
-    // 2. Build payload from forms
-    const payload: any = {};
-    for (const [topicName, formsByEntryKey] of this.topicForms.entries()) {
-      const finalTopicName = topicNameMap.get(topicName) ?? topicName;
-      const topicPayload: any = {};
-
-      for (const [entryKey, groups] of formsByEntryKey.entries()) {
-        if (!groups.length) continue;
-
-        const firstGroup = groups[0];
-        const newAttributeKey = firstGroup.get("attName")?.value.trim();
-        const finalAttributeKey = newAttributeKey || entryKey;
-
-        topicPayload[finalAttributeKey] = groups.map((fg) => {
-          const rule = fg.get("rule")?.value;
-          const paramsGroup = fg.get("params") as FormGroup | null;
-          const params = paramsGroup ? paramsGroup.value : {};
-          const handler = fg.get("handler")?.value || "";
-
-          return {
-            rule,
-            params,
-            handler,
-          };
-        });
-      }
-
-      payload[finalTopicName] = topicPayload;
-    }
+    const payload = this.formMapper.buildSavePayload(this.topics, this.topicNameControls, this.topicForms);
 
     // 3. Call service
     this.isSaving = true;
@@ -225,13 +163,9 @@ export class ConfigurationState implements OnInit {
       .subscribe({
         next: (cfg) => {
           if (!cfg) return;
-          this.cfg = cfg.topics;
-          this.topics = Object.entries(cfg.topics);
-          this.buildTopicForms(cfg.topics);
-          if (this.topics && this.topics.length > 0) {
-            this.selectedTopic = this.topics[0][0];
-          }
+          this.applyFormStateFromTopics(cfg.topics);
           this.edible = false;
+          this.configCreation = false;
         },
         error: (err) => {
           console.error(
@@ -242,48 +176,6 @@ export class ConfigurationState implements OnInit {
       });
   }
 
-  // construct the list of TopicName Controls
-  private initTopicNameControls(): void {
-    this.topicNameControls.clear();
-    this.originalTopicNames.clear();
-
-    // helper used by uniqueness validator
-    const getAllNames = () => Array.from(this.topicNameControls.values()).map((c) => c.value);
-
-    for (const [topicName] of this.topics) {
-      const ctrl = this.formFactory.createTopicNameControl(topicName, getAllNames);
-      this.topicNameControls.set(topicName, ctrl);
-      this.originalTopicNames.set(topicName, topicName);
-    }
-
-    // After all controls exist, force uniqueness validators to re-run once
-    for (const ctrl of this.topicNameControls.values()) {
-      ctrl.updateValueAndValidity({ emitEvent: false });
-    }
-  }
-
-
-  // Build forms for all topics within the configuration
-  private buildTopicForms(topics: TopicsMap): void {
-    this.topicForms.clear();
-
-    for (const [topicName, topicDef] of Object.entries(topics)) {
-      const formsByEntryKey = new Map<string, FormGroup[]>();
-      const getAllAttributeNames = () =>
-        Array.from(formsByEntryKey.values())
-          .flat()
-          .map(fg => (fg.get("attName")?.value ?? "").toString());
-
-      for (const [entryKey, rules] of Object.entries(topicDef)) {
-        const groups = (rules ?? []).map((spec: RuleSpec) =>
-          this.formFactory.buildRuleForm(entryKey, getAllAttributeNames, spec)
-        );
-        formsByEntryKey.set(entryKey, groups);
-      }
-
-      this.topicForms.set(topicName, formsByEntryKey);
-    }
-  }
 
   private buildTopicsMapFromAdoptedRules(topicName: string, adoptedRules: any[]): any {
     const topicDefinition: Record<string, any[]> = {};
@@ -358,7 +250,7 @@ export class ConfigurationState implements OnInit {
     this.originalTopicNames.set(newTopicName, newTopicName);
 
     // Create an empty form map for this topic (no attributes yet)
-    this.topicForms.set(newTopicName, new Map<string, FormGroup[]>());
+    this.topicForms.set(newTopicName, new Map<string, FormGroup>());
 
     // Select the new topic and switch to edit mode so the name can be changed
     this.selectedTopic = newTopicName;
