@@ -18,10 +18,10 @@ export type TopicsMap = Record<string, TopicDefinition>;
 export type TopicDefinition = Record<string, RuleSpec[]>;
 
 /** Optional handler names observed in payload */
-export type  Handler = "" | "SmoothingOutliers" | "RaiseAlarm" | "TimestampCorrection";
+export type Handler = "" | "SmoothingOutliers" | "RaiseAlarm" | "TimestampCorrection";
 
-export const HANDLERS: {id: Handler, label: string}[] = [
-  { id: "", label: "No Handler"},
+export const HANDLERS: { id: Handler, label: string }[] = [
+  { id: "", label: "No Handler" },
   { id: "SmoothingOutliers", label: "Smoothing Outliers" },
   { id: "RaiseAlarm", label: "Raise Alarm" },
   { id: "TimestampCorrection", label: "Timestamp Correction" },
@@ -43,6 +43,11 @@ export const RULE_PARAMS_MAP = {
     column: "",
     regex: "",
   },
+  expect_column_values_number_of_decimal_places_to_equal: {
+    column: "",
+    decimal_places: 2,
+  },
+
 } as const;
 
 // Narrowed union of rule ids like "expect_column_values_to_not_be_null" | ...
@@ -53,6 +58,7 @@ export const RULES: { id: RuleId; label: string }[] = [
   { id: "expect_column_values_to_not_be_null", label: "Not Null" },
   { id: "expect_column_values_to_be_between", label: "Between" },
   { id: "expect_column_values_to_match_regex", label: "Matches Regex" },
+  { id: "expect_column_values_number_of_decimal_places_to_equal", label: "Decimal Places Equal" },
 ] as const;
 
 export type RuleOption = typeof RULES[number];

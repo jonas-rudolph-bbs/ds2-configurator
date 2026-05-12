@@ -195,17 +195,34 @@ export class ConfigurationFormFactory {
    * Start simple; expand as you add real constraints.
    */
   private getParamValidators(rule: RuleName, paramName: string): ValidatorFn[] {
-    // Example placeholder rules; adapt to your real ones
     const v: ValidatorFn[] = [];
 
-    // common cases
-    if (paramName.toLowerCase().includes("min") || paramName.toLowerCase().includes("max")) {
-      // if it's numeric, you might enforce number-ness or range
-      // (Angular doesn’t have a built-in “is number” validator; you can add one)
+    if (paramName === 'column') {
+      v.push(Validators.required);
     }
 
-    // Example: required params for certain rules
-    // if (rule === "someRule" && paramName === "threshold") v.push(Validators.required);
+    if (
+      rule === 'expect_column_values_to_be_between' &&
+      (paramName === 'min_value' || paramName === 'max_value')
+    ) {
+      v.push(Validators.required);
+    }
+
+    if (
+      rule === 'expect_column_values_to_match_regex' &&
+      paramName === 'regex'
+    ) {
+      v.push(Validators.required);
+    }
+
+    if (
+      rule === 'expect_column_values_number_of_decimal_places_to_equal' &&
+      paramName === 'decimal_places'
+    ) {
+      v.push(Validators.required);
+      v.push(Validators.min(0));
+      v.push(Validators.pattern(/^\d+$/));
+    }
 
     return v;
   }

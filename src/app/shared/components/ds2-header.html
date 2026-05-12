@@ -14,8 +14,11 @@
 
         <!-- Right: window controls -->
         <div class="ms-auto">
-            <dash-button keycloak-uri="HTTPS://KEYCLOAK_URL" realm="REALM" clientid="CLIENT_ID"
-                show-post-login-text="false"></dash-button>
+            <!-- <dash-button keycloak-uri="HTTPS://KEYCLOAK_URL" realm="REALM" clientid="CLIENT_ID"
+                show-post-login-text="false"></dash-button> -->
+
+            <dash-button portal-api-url="https://portal-api.ds2.icelab.cloud/" show-post-login-text="true">
+            </dash-button>
         </div>
     </div>
 </header>

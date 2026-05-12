@@ -56,6 +56,7 @@ export class ProfilingRulesComponent {
       case 'schema_refinement/timestamp':
         return this.mapTimestampConstraint(candidate);
       case 'precision/scale_drift':
+        return this.mapPrecisionScaleDrift(candidate);
       default:
         return {
           supported: false,
@@ -198,6 +199,40 @@ export class ProfilingRulesComponent {
     };
   }
 
+  private mapPrecisionScaleDrift(candidate: any) {
+    const column = candidate?.attribute;
+
+    const decimalPlaces =
+      candidate?.evidence?.decimal_mode ??
+      candidate?.evidence?.expected_decimal_places ??
+      candidate?.evidence?.scale ??
+      candidate?.evidence?.suggested_decimal_places;
+
+    if (!column || decimalPlaces === null || decimalPlaces === undefined) {
+      return {
+        supported: false,
+        label: 'unsupported',
+        preview: 'No direct expectation mapping available.',
+        expectation: undefined
+      };
+    }
+
+    return {
+      supported: true,
+      label: 'decimal places',
+      preview:
+        `expect_column_values_number_of_decimal_places_to_equal(` +
+        `column="${column}", decimal_places=${decimalPlaces})`,
+      expectation: {
+        expectation_type: 'expect_column_values_number_of_decimal_places_to_equal',
+        kwargs: {
+          column,
+          decimal_places: Number(decimalPlaces)
+        }
+      }
+    };
+  }
+
   evidencePreview(
     evidence: Record<string, unknown> | null | undefined
   ): Array<{ key: string; value: string }> {
@@ -282,5 +317,19 @@ export class ProfilingRulesComponent {
 
   toggleAccordion(index: number): void {
     this.openIndex = this.openIndex === index ? -1 : index;
+  }
+
+  ruleClassLabels: Record<string, string> = {
+    unexpected_type: 'Unexpected type',
+    'constraint_violation/range': 'Range constraint',
+    missingness: 'Missing values',
+    'precision/scale_drift': 'Precision shift',
+    'schema_refinement/timestamp': 'Timestamp constraint',
+    regex_constraints: 'Pattern constraint',
+    clustered_anomaly_pattern: 'Anomaly pattern',
+  };
+
+  labelForRuleClass(value: string): string {
+    return this.ruleClassLabels[value] ?? value;
   }
 }
