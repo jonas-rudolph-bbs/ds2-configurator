@@ -58,3 +58,25 @@ input[type="text"] {
 .trash-button:hover {
   transform: scale(1.2);
 }
+
+.sort-header-button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  cursor: pointer;
+}
+
+.sort-header-button:hover {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+.sort-indicator {
+  display: inline-block;
+  min-width: 1rem;
+  margin-left: 0.25rem;
+  color: var(--primary-color);
+}

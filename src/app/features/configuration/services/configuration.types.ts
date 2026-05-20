@@ -1,8 +1,20 @@
 // configuration.types.ts
 
+export interface ValidationConfigMetadata {
+  name?: string;
+  created_at?: string;
+  updated_at?: string;
+  [key: string]: unknown;
+}
+
+export interface ValidationConfig {
+  metadata: ValidationConfigMetadata;
+  topics: TopicsMap;
+}
+
 /** Root object from the API */
 export interface ValidationRoot {
-  validation: Record<string, TopicsMap>;
+  validation: Record<string, ValidationConfig>;
 }
 
 /**
@@ -79,4 +91,5 @@ export type RuleSpec<K extends RuleName = RuleName> = {
 export interface ValidationState {
   id: string; // key from the "validation" record
   topics: TopicsMap; // value stored under that key
+  metadata: ValidationConfigMetadata; // metadata for this validation config
 }

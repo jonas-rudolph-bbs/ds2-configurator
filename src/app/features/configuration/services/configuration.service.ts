@@ -6,12 +6,23 @@ import { catchError, map, shareReplay } from "rxjs/operators";
 import {
   ValidationRoot,
   ValidationState,
+  ValidationConfig,
   TopicsMap,
 } from "./configuration.types";
 
 @Injectable({ providedIn: "root" })
 export class ConfigurationService {
   private readonly http = inject(HttpClient);
+
+  private normalizeValidationState(id: string, rawConfig: any): ValidationState {
+    const config = rawConfig as Partial<ValidationConfig>;
+
+    return {
+      id,
+      metadata: config.metadata ?? {},
+      topics: config.topics ?? {},
+    };
+  }
 
   /**
    * Fetch and normalize all validation states into an array:
@@ -20,7 +31,7 @@ export class ConfigurationService {
   getAllConfigurationStates(): Observable<ValidationState[]> {
     return this.http.get<any>("/configs/validation").pipe(
       map((root) => {
-        // Case 1: { validation: { [id]: topics } }
+        // Case 1: { validation: { [id]: { metadata, topics } } }
         if (
           root &&
           typeof root === "object" &&
@@ -28,26 +39,23 @@ export class ConfigurationService {
           root.validation &&
           typeof root.validation === "object"
         ) {
-          return Object.entries(root.validation).map(([id, topics]) => ({
-            id,
-            topics: topics as TopicsMap,
-          }));
+          return Object.entries(root.validation).map(([id, config]) =>
+            this.normalizeValidationState(id, config)
+          );
         }
 
-        // Case 2: [{ id, topics }, ...]
+        // Case 2: [{ id, metadata, topics }, ...]
         if (Array.isArray(root)) {
-          return root.map((x: any) => ({
-            id: String(x.id),
-            topics: x.topics as TopicsMap,
-          }));
+          return root.map((x: any) =>
+            this.normalizeValidationState(String(x.id), x)
+          );
         }
 
-        // Case 3: { items: [{ id, topics }, ...] }
+        // Case 3: { items: [{ id, metadata, topics }, ...] }
         if (root?.items && Array.isArray(root.items)) {
-          return root.items.map((x: any) => ({
-            id: String(x.id),
-            topics: x.topics as TopicsMap,
-          }));
+          return root.items.map((x: any) =>
+            this.normalizeValidationState(String(x.id), x)
+          );
         }
 
         console.warn("Unexpected validation payload shape:", root);
@@ -75,10 +83,9 @@ export class ConfigurationService {
     return this.http.get<ValidationRoot>("/configs/validation").pipe(
       map((root) => {
         const record = root?.validation ?? {};
-        return Object.entries(record).map<ValidationState>(([id, topics]) => ({
-          id,
-          topics: topics as TopicsMap,
-        }));
+        return Object.entries(record).map<ValidationState>(([id, config]) =>
+          this.normalizeValidationState(id, config)
+        );
       }),
       catchError((err) => {
         console.error("Failed to refresh validation configs:", err);

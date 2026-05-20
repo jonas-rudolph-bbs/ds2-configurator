@@ -12,10 +12,12 @@ import {
   FormGroup,
   FormControl,
   ReactiveFormsModule,
+  Validators,
 } from "@angular/forms";
 import {
   TopicDefinition,
-  TopicsMap
+  TopicsMap,
+  ValidationConfigMetadata
 } from "../services/configuration.types";
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -44,6 +46,14 @@ export class ConfigurationState implements OnInit {
 
   // state from backend
   id: string | null = null;
+  metadata: ValidationConfigMetadata = {};
+  configNameControl = new FormControl<string>("", {
+    nonNullable: true,
+    validators: [
+      Validators.required,
+      Validators.maxLength(100),
+    ],
+  });
   cfg: TopicsMap | null = null;
   topics: [string, TopicDefinition][] = [];
 
@@ -80,19 +90,19 @@ export class ConfigurationState implements OnInit {
 
             if (adoptedRules && topicName) {
               const tempCfg = this.buildTopicsMapFromAdoptedRules(topicName, adoptedRules);
-
+              this.metadata = this.buildDefaultMetadata(this.id!);
               this.applyFormStateFromTopics(tempCfg, topicName);
               this.configCreation = true;
               this.edible = true;
 
               return;
             }
-
+            this.metadata = this.buildDefaultMetadata(this.id!);
             this.configCreation = true;
             return;
           }
           this.configCreation = false;
-
+          this.applyMetadata(cfg.metadata);
           this.applyFormStateFromTopics(cfg.topics);
         },
       });
@@ -140,14 +150,31 @@ export class ConfigurationState implements OnInit {
     }
     this.saveAttempted = true;
 
+    this.configNameControl.markAsTouched();
+
     const allValid = this.formMapper.validateAll(this.topicNameControls, this.topicForms);
-    if (!allValid) {
+    const metadataValid = this.configNameControl.valid;
+
+    if (!allValid || !metadataValid) {
       console.warn("Validation failed. Please fix the errors and try again.");
       return;
     }
 
 
-    const payload = this.formMapper.buildSavePayload(this.topics, this.topicNameControls, this.topicForms);
+    const topicsPayload = this.formMapper.buildSavePayload(
+      this.topics,
+      this.topicNameControls,
+      this.topicForms
+    );
+
+    const payload = {
+      metadata: {
+        ...this.metadata,
+        name: this.configNameControl.value.trim(),
+        updated_at: new Date().toISOString(),
+      },
+      topics: topicsPayload,
+    };
 
     // 3. Call service
     this.isSaving = true;
@@ -163,6 +190,7 @@ export class ConfigurationState implements OnInit {
       .subscribe({
         next: (cfg) => {
           if (!cfg) return;
+          this.applyMetadata(cfg.metadata);
           this.applyFormStateFromTopics(cfg.topics);
           this.edible = false;
           this.configCreation = false;
@@ -264,6 +292,8 @@ export class ConfigurationState implements OnInit {
       // Navigate away or reset state as needed
       this.configCreation = false;
       this.id = null;
+      this.metadata = {};
+      this.configNameControl.reset("");
       this.cfg = null;
       this.topics = [];
       this.topicForms.clear();
@@ -276,5 +306,26 @@ export class ConfigurationState implements OnInit {
 
   onBackClicked(): void {
     this.router.navigate(['/configurations']);
+  }
+
+  private buildDefaultMetadata(id: string): ValidationConfigMetadata {
+    const now = new Date().toISOString();
+
+    return {
+      name: id,
+      created_at: now,
+      updated_at: now,
+    };
+  }
+
+  private applyMetadata(metadata: ValidationConfigMetadata | undefined): void {
+    this.metadata = metadata ?? {};
+
+    this.configNameControl.setValue(
+      typeof this.metadata.name === "string" && this.metadata.name.trim()
+        ? this.metadata.name
+        : this.id ?? "",
+      { emitEvent: false }
+    );
   }
 }
