@@ -2,7 +2,5 @@ node_modules
 .angular
 dist
 
-nginx.conf
-
 README.md
 CLAUDE.md
