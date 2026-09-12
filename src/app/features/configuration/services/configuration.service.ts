@@ -9,10 +9,12 @@ import {
   ValidationConfig,
   TopicsMap,
 } from "./configuration.types";
+import { getApiBase } from "../../../core/backend-url.util";
 
 @Injectable({ providedIn: "root" })
 export class ConfigurationService {
   private readonly http = inject(HttpClient);
+  private readonly apiBase = getApiBase();
 
   private normalizeValidationState(id: string, rawConfig: any): ValidationState {
     const config = rawConfig as Partial<ValidationConfig>;
@@ -29,7 +31,7 @@ export class ConfigurationService {
    * [{ id, topics }, ...]
    */
   getAllConfigurationStates(): Observable<ValidationState[]> {
-    return this.http.get<any>("/configs/validation").pipe(
+    return this.http.get<any>(`${this.apiBase}/configs/validation`).pipe(
       map((root) => {
         // Case 1: { validation: { [id]: { metadata, topics } } }
         if (
@@ -80,7 +82,7 @@ export class ConfigurationService {
    * Consumers can re-subscribe to getAllConfigurationStates() afterward.
    */
   refreshAllConfigurationStates(): Observable<ValidationState[]> {
-    return this.http.get<ValidationRoot>("/configs/validation").pipe(
+    return this.http.get<ValidationRoot>(`${this.apiBase}/configs/validation`).pipe(
       map((root) => {
         const record = root?.validation ?? {};
         return Object.entries(record).map<ValidationState>(([id, config]) =>
@@ -95,7 +97,7 @@ export class ConfigurationService {
   }
 
   saveConfigurationState(id: string, payload: any): Observable<any> {
-    return this.http.post(`/configs/validation/${id}`, payload).pipe(
+    return this.http.post(`${this.apiBase}/configs/validation/${id}`, payload).pipe(
       catchError((err) => {
         console.error("Failed to save validation config:", err);
         return throwError(() => err);
@@ -104,6 +106,6 @@ export class ConfigurationService {
   }
 
   deleteConfiguration(id: string): Observable<void> {
-    return this.http.delete<void>(`/configs/validation/${id}`);
+    return this.http.delete<void>(`${this.apiBase}/configs/validation/${id}`);
   }
 }

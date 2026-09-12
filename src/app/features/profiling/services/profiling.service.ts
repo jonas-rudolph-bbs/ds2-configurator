@@ -2,10 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, from, switchMap } from 'rxjs';
 import { ProfilingResult } from './profiling.types';
+import { getApiBase } from '../../../core/backend-url.util';
 
 @Injectable({ providedIn: 'root' })
 export class ProfilingService {
   private readonly http = inject(HttpClient);
+  private readonly apiBase = getApiBase();
 
   /**
    * Upload a JSON file to be profiled.
@@ -24,7 +26,7 @@ export class ProfilingService {
         const payloads = Array.isArray(parsed) ? parsed : [parsed];
 
         return this.http.post<ProfilingResult>(
-          `/profiling/profile/${topic}`,
+          `${this.apiBase}/profiling/profile/${topic}`,
           payloads,
           {
             headers: { 'Content-Type': 'application/json' },
@@ -44,7 +46,7 @@ export class ProfilingService {
    */
   profileJsonPayload(payload: any): Observable<ProfilingResult> {
     let topic = 'profile-json';
-    return this.http.post<ProfilingResult>(`/profiling/profile/${topic}`, payload, {
+    return this.http.post<ProfilingResult>(`${this.apiBase}/profiling/profile/${topic}`, payload, {
       headers: { 'Content-Type': 'application/json' },
       params: {'ts_col': 'dateCaptured'}
     });
