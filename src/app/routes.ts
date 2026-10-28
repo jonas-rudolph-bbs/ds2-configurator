@@ -5,6 +5,7 @@ import { Ds2Homescreen } from './features/homescreen/ds2-homescreen';
 import { AppLayout } from './shared/layout/app-layout';
 import { ProfilingPage } from './features/profiling/pages/profiling-page';
 import { Ds2About } from './features/about/pages/about';
+import { ListenersPrototypePage } from './features/listeners/prototype/listeners-prototype.page'; // PROTOTYPE
 import { NONE_TYPE } from '@angular/compiler';
 
 const routeConfig: Routes = [
@@ -19,7 +20,8 @@ const routeConfig: Routes = [
     children: [
       { path: 'configurations', component: ConfigurationOverview, title: 'Configurations' },
       {path: 'details/:id', component: ConfigurationState, title: 'Configuration Details'},
-      {path: 'about', component: Ds2About , title: 'About DDT'}
+      {path: 'about', component: Ds2About , title: 'About DDT'},
+      {path: 'listeners-prototype', component: ListenersPrototypePage, title: 'MQTT Listeners (prototype)'}
 
       ]
   },
