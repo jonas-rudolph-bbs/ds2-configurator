@@ -1,0 +1,140 @@
+<!-- ERROR MODAL -->
+<div class="modal fade" id="listenerErrorModal" tabindex="-1" aria-labelledby="listenerErrorModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="listenerErrorModalLabel">Error</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>{{ errorMessage }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRMATION MODAL -->
+<div class="modal fade" id="deleteListenerModal" tabindex="-1" aria-labelledby="deleteListenerModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="deleteListenerModalLabel">Delete Listener</h2>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete the listener <b>{{ pendingDelete?.name }}</b>?
+        <br />
+        The subscription to <code>{{ pendingDelete?.source }}</code> stops immediately. This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger mx-2" data-bs-dismiss="modal" (click)="onDeleteConfirmed()">
+          Delete Listener
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE HEADER -->
+<header class="d-flex justify-content-between align-items-start">
+  <div class="mb-5">
+    <h1 class="h3 mb-2">MQTT Listeners</h1>
+    <p class="text-muted mb-0">
+      How MQTT data flows through the validation configurations of the DDT module.
+    </p>
+  </div>
+  <div>
+    <a class="btn btn-ds2" (click)="onAddListenerClick()">Add listener</a>
+  </div>
+</header>
+
+<!-- PAGE CONTENT -->
+@if (loadFailed) {
+<div class="alert alert-warning">Could not load the listeners from the backend. Retrying…</div>
+}
+
+@if (groups$ | async; as groups) {
+  @for (group of groups; track group.id) {
+  <section class="config-block">
+    <div class="config-head d-flex justify-content-between align-items-center">
+      <div>
+        <strong>{{ group.name }}</strong>
+        <span class="text-muted small ms-2">
+          {{ group.listeners.length }} listener(s) · sections: {{ group.topics.join(', ') || '–' }}
+        </span>
+      </div>
+      @if (group.id) {
+      <button class="btn btn-sm btn-outline-ds2" (click)="onAddListenerClick(group.id)">+ Listener for this config</button>
+      }
+    </div>
+
+    @for (listener of group.listeners; track listener.id) {
+    <div class="flow" [class.flow-disabled]="!listener.enabled">
+      <span class="dot" [class]="listenerState(listener)" [title]="stateLabel(listenerState(listener))"></span>
+
+      <div class="node node-source">
+        <div class="small text-muted">{{ listener.name }}</div>
+        <code>{{ listener.source }}</code>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node">
+        <div class="small text-muted">section · batch {{ listener.batch_size }}</div>
+        {{ listener.validation_topic }}
+      </div>
+      <div class="arrow">→</div>
+      <div class="small">
+        <div class="node mb-1" title="Validated data">✔ <code>{{ effectivePublishTopics(listener).validated }}</code></div>
+        <div class="node" title="Alarms">⚠ <code>{{ effectivePublishTopics(listener).alarm }}</code></div>
+      </div>
+
+      <div class="text-end small text-nowrap">
+        <div>
+          <strong>{{ listener.status?.message_count ?? 0 }}</strong> messages
+          @if (listener.status?.error_count) {
+          · <span class="text-danger">{{ listener.status?.error_count }} invalid</span>
+          }
+        </div>
+        <div class="text-muted">{{ timeAgo(listener.status?.last_message_at) }}</div>
+      </div>
+
+      <div class="text-end text-nowrap">
+        <div class="form-check form-switch d-inline-block align-middle me-1" [title]="listener.enabled ? 'Disable' : 'Enable'">
+          <input class="form-check-input" type="checkbox" role="switch"
+                 [attr.aria-label]="(listener.enabled ? 'Disable ' : 'Enable ') + listener.name"
+                 [checked]="listener.enabled" [disabled]="togglingId === listener.id"
+                 (change)="onToggleEnabled(listener)" />
+        </div>
+        <button class="btn btn-link text-decoration-none" (click)="onEditClick(listener)">Edit</button>
+        <button class="btn btn-transparent trash-button" [attr.aria-label]="'Delete ' + listener.name" (click)="onDeleteClick(listener)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash"
+            viewBox="0 0 16 16">
+            <path
+              d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+            <path
+              d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+    } @empty {
+    <div class="px-3 py-3 text-muted small border-top">No MQTT data flows through this configuration yet.</div>
+    }
+  </section>
+  } @empty {
+  <div class="text-center border rounded-3 p-5 text-muted">
+    <p class="h5">No validation configurations yet</p>
+    <p class="mb-3">A listener validates MQTT data with a validation configuration. Create a configuration first.</p>
+    <a class="btn btn-ds2" routerLink="/configurations">Go to Configurations</a>
+  </div>
+  }
+} @else {
+<div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
+  <div class="d-flex flex-column align-items-center">
+    <span class="spinner-border mb-2" role="status" aria-label="Loading"></span>
+    <p class="mb-0">Loading ...</p>
+  </div>
+</div>
+}

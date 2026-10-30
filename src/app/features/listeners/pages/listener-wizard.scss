@@ -1,0 +1,77 @@
+.wizard {
+  max-width: 1200px;
+}
+
+.return-icon {
+  width: 1.5em;
+  height: 1.5em;
+}
+
+.steps .step {
+  flex: 1;
+  background: none;
+  border: 0;
+  border-bottom: 4px solid var(--shadow-color);
+  padding: 0 0 0.4rem;
+  text-align: left;
+  color: var(--seondary-text-color);
+}
+
+.steps .step.active {
+  border-color: var(--primary-color);
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.steps .step.has-error {
+  border-color: var(--error-color);
+}
+
+/* Live summary card, stays in view while scrolling the form */
+.flow-summary {
+  position: sticky;
+  top: 1rem;
+  background: var(--third-background-color);
+  border-left: 4px solid var(--primary-color);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.flow-step {
+  background: var(--primary-background-color);
+  border: 1px solid var(--shadow-color);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.flow-step:hover {
+  border-color: var(--primary-color);
+}
+
+.flow-step-empty {
+  color: var(--hint-text-color);
+  border-style: dashed;
+}
+
+.flow-step-label {
+  font-size: 0.75rem;
+  color: var(--seondary-text-color);
+}
+
+.flow-arrow {
+  text-align: center;
+  color: var(--primary-color);
+  line-height: 1.6;
+}
+
+.batch-input {
+  max-width: 160px;
+}
+
+.form-check-input:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}

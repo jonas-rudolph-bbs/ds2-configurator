@@ -1,0 +1,78 @@
+/* One block per validation configuration */
+.config-block {
+  border: 1px solid var(--shadow-color);
+  border-radius: 12px;
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+}
+
+.config-head {
+  background: var(--third-background-color);
+  border-left: 6px solid var(--primary-color);
+  padding: 0.75rem 1rem;
+}
+
+/* One listener = one flow: status · source → section → outputs · counts · actions */
+.flow {
+  display: grid;
+  grid-template-columns: 16px minmax(160px, 1.1fr) 24px minmax(140px, 1fr) 24px minmax(240px, 1.4fr) auto auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--shadow-color);
+}
+
+.flow-disabled .node,
+.flow-disabled .arrow {
+  opacity: 0.5;
+}
+
+.node {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.35rem 0.6rem;
+  background: var(--primary-background-color);
+  overflow-wrap: anywhere;
+}
+
+.node-source {
+  border-color: var(--primary-color);
+  background: var(--primary-color-20);
+}
+
+.arrow {
+  text-align: center;
+  color: var(--primary-color);
+  font-size: 1.2rem;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.dot.subscribed {
+  background: #2e9d5b;
+}
+
+.dot.not-connected {
+  background: #e0a100;
+}
+
+.dot.disabled {
+  background: #b5b5b5;
+}
+
+.form-check-input:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.trash-button {
+  color: rgba(234, 107, 102, 0.75);
+}
+
+.trash-button:hover {
+  transform: scale(1.2);
+}

@@ -5,6 +5,8 @@ import { Ds2Homescreen } from './features/homescreen/ds2-homescreen';
 import { AppLayout } from './shared/layout/app-layout';
 import { ProfilingPage } from './features/profiling/pages/profiling-page';
 import { Ds2About } from './features/about/pages/about';
+import { ListenerOverview } from './features/listeners/pages/listener-overview';
+import { ListenerWizard } from './features/listeners/pages/listener-wizard';
 import { NONE_TYPE } from '@angular/compiler';
 
 const routeConfig: Routes = [
@@ -19,6 +21,9 @@ const routeConfig: Routes = [
     children: [
       { path: 'configurations', component: ConfigurationOverview, title: 'Configurations' },
       {path: 'details/:id', component: ConfigurationState, title: 'Configuration Details'},
+      {path: 'listeners', component: ListenerOverview, title: 'MQTT Listeners'},
+      {path: 'listeners/new', component: ListenerWizard, title: 'New Listener'},
+      {path: 'listeners/:id', component: ListenerWizard, title: 'Edit Listener'},
       {path: 'about', component: Ds2About , title: 'About DDT'}
 
       ]

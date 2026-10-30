@@ -1,0 +1,180 @@
+<div class="container-fluid">
+  <!-- PAGE HEADER -->
+  <header>
+    <div class="mb-4">
+      <button class="btn p-1 back-btn-ds2" (click)="onCancel()" style="position: relative; left: -10px" aria-label="Back to listeners">
+        <svg viewBox="0 0 1024 1024" width="1em" height="1em" fill="currentColor" class="return-icon">
+          <path
+            d="M333.436236 512.002048l363.098222-362.900598c18.226434-18.226434 18.226434-47.770666 0-65.998124s-47.770666-18.226434-65.998124 0L234.422666 479.000938c-18.226434 18.226434-18.226434 47.770666 0 65.998124l396.112643 395.942666c18.227458 18.18138 47.77169 18.18138 65.998124 0 18.226434-18.227458 18.226434-47.77169 0-65.998124L333.436236 512.002048z" />
+        </svg>
+      </button>
+    </div>
+    <div class="mb-4">
+      <h1 class="h3 mb-2">{{ isEdit ? 'Edit Listener' : 'New Listener' }}</h1>
+      <p class="text-muted mb-0">
+        A listener subscribes to an MQTT topic and validates its messages with a validation configuration.
+      </p>
+    </div>
+  </header>
+
+  @if (loading) {
+  <div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
+    <div class="d-flex flex-column align-items-center">
+      <span class="spinner-border mb-2" role="status" aria-label="Loading"></span>
+      <p class="mb-0">Loading ...</p>
+    </div>
+  </div>
+  } @else if (notFound) {
+  <div class="alert alert-warning wizard">
+    This listener doesn't exist (anymore). <a href="" (click)="$event.preventDefault(); onCancel()">Back to the listeners</a>
+  </div>
+  } @else {
+  <div class="wizard row g-5">
+  <div class="col-lg-8">
+    <!-- STEPS -->
+    <nav class="d-flex gap-3 mb-4 steps" aria-label="Steps">
+      @for (step of steps; track step.title; let i = $index) {
+      <button type="button" class="step" [class.active]="currentStep === i" [class.has-error]="stepInvalid(i) && form.touched"
+              (click)="goToStep(i)">
+        {{ i + 1 }}. {{ step.title }}
+      </button>
+      }
+    </nav>
+
+    @if (saveError) {
+    <div class="alert alert-danger" role="alert">{{ saveError }}</div>
+    }
+
+    <p class="text-muted">{{ steps[currentStep].hint }}</p>
+
+    <form [formGroup]="form" (ngSubmit)="isEdit || currentStep === steps.length - 1 ? onSave() : onNext()">
+      @switch (currentStep) {
+      @case (0) {
+      <div class="mb-3">
+        <label class="form-label" for="name">Name</label>
+        <input id="name" class="form-control form-control-ds2" formControlName="name" placeholder="e.g. Air Quality MQTT" />
+        @if (showError('name')) { <div class="form-text text-danger">A name is required.</div> }
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="source">MQTT source topic</label>
+        <input id="source" class="form-control form-control-ds2" formControlName="source" placeholder="e.g. air-quality" />
+        @if (showError('source')) {
+        <div class="form-text text-danger">
+          @if (form.controls.source.hasError('wildcard')) { Wildcards (+, #) are not supported. } @else { A source topic is required. }
+        </div>
+        }
+        <div class="form-text">Each topic can only be used by one listener.</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Variables in the messages</label>
+        <app-tag-input [tags]="form.controls.variables.value" (tagsChange)="onVariablesChange($event)"
+                       placeholder="e.g. co, no2 (press Enter)"></app-tag-input>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="ts">Timestamp attribute</label>
+        <input id="ts" class="form-control form-control-ds2" formControlName="timestamp_attribute" placeholder="e.g. dateFrom" />
+        <div class="form-text">Used as <code>ts</code> in validated data and alarms. Optional.</div>
+      </div>
+      }
+
+      @case (1) {
+      <div class="mb-3">
+        <label class="form-label" for="config">Validation configuration</label>
+        <select id="config" class="form-select form-control-ds2" formControlName="validation_config_id" (change)="onConfigChanged()">
+          <option value="" disabled>Select a configuration…</option>
+          @for (config of configs; track config.id) {
+          <option [value]="config.id">{{ config.metadata.name || config.id }}</option>
+          }
+        </select>
+        @if (showError('validation_config_id')) { <div class="form-text text-danger">Select a validation configuration.</div> }
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Topic section</label>
+        <div class="d-flex flex-wrap gap-2">
+          @for (section of sections; track section) {
+          <button type="button" class="btn btn-sm"
+                  [class.btn-ds2]="form.controls.validation_topic.value === section"
+                  [class.btn-outline-ds2]="form.controls.validation_topic.value !== section"
+                  (click)="selectSection(section)">{{ section }}</button>
+          } @empty {
+          <span class="text-muted small">
+            {{ form.controls.validation_config_id.value ? 'This configuration has no topic sections.' : 'Select a configuration first.' }}
+          </span>
+          }
+        </div>
+        @if (showError('validation_topic')) { <div class="form-text text-danger">Select the section whose rules apply.</div> }
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="batch">Batch size</label>
+        <input id="batch" type="number" min="1" class="form-control form-control-ds2 batch-input" formControlName="batch_size" />
+        <div class="form-text">Number of messages validated together.</div>
+        @if (showError('batch_size')) { <div class="form-text text-danger">Must be a whole number of at least 1.</div> }
+      </div>
+      }
+
+      @case (2) {
+      <div class="mb-3">
+        <label class="form-label" for="pv">Validated data</label>
+        <input id="pv" class="form-control form-control-ds2" formControlName="publish_validated" [placeholder]="publishDefaults.validated" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="pa">Alarms</label>
+        <input id="pa" class="form-control form-control-ds2" formControlName="publish_alarm" [placeholder]="publishDefaults.alarm" />
+        <div class="form-text">Leave empty to use the default shown.</div>
+      </div>
+      <div class="form-check form-switch mb-3">
+        <input id="enabled" class="form-check-input" type="checkbox" role="switch" formControlName="enabled" />
+        <label class="form-check-label" for="enabled">Enabled (subscribe to the source topic)</label>
+      </div>
+      }
+      }
+
+      <!-- ACTIONS -->
+      <div class="mt-4 d-flex gap-2">
+        @if (currentStep > 0) {
+        <button type="button" class="btn btn-outline-secondary" (click)="onBack()">Back</button>
+        }
+        @if (currentStep < steps.length - 1) {
+        <button type="button" class="btn" [class.btn-ds2]="!isEdit" [class.btn-outline-ds2]="isEdit" (click)="onNext()">Next</button>
+        }
+        @if (isEdit || currentStep === steps.length - 1) {
+        <button type="submit" class="btn btn-ds2" [disabled]="isSaving">
+          @if (isSaving) { <span class="spinner-border spinner-border-sm me-1"></span> }
+          {{ isEdit ? 'Save' : 'Create listener' }}
+        </button>
+        }
+        <button type="button" class="btn btn-link" (click)="onCancel()">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- FLOW SUMMARY (live): right of the form, below it on narrow screens -->
+  <aside class="col-lg-4">
+    <div class="flow-summary">
+      <h2 class="h6 mb-3">Data flow</h2>
+
+      <div class="flow-step" [class.flow-step-empty]="!form.controls.source.value" (click)="goToStep(0)">
+        <div class="flow-step-label">Source topic</div>
+        <code>{{ form.controls.source.value || 'not set' }}</code>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step" [class.flow-step-empty]="!form.controls.validation_topic.value" (click)="goToStep(1)">
+        <div class="flow-step-label">Validation · batch {{ form.controls.batch_size.value }}</div>
+        {{ form.controls.validation_config_id.value ? configName(form.controls.validation_config_id.value) : 'no configuration' }}
+        › {{ form.controls.validation_topic.value || 'no section' }}
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step" (click)="goToStep(2)">
+        <div class="flow-step-label">Output</div>
+        <div>✔ <code>{{ effectivePublish.validated }}</code></div>
+        <div>⚠ <code>{{ effectivePublish.alarm }}</code></div>
+      </div>
+
+      @if (!form.controls.enabled.value) {
+      <p class="small text-muted mt-3 mb-0">Disabled: the topic won't be subscribed until you enable the listener.</p>
+      }
+    </div>
+  </aside>
+  </div>
+  }
+</div>

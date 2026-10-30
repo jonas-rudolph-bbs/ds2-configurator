@@ -21,6 +21,7 @@ import {
 } from "../services/configuration.types";
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { Modal } from "bootstrap";
 
 @Component({
   selector: "app-configuration-state",
@@ -60,6 +61,7 @@ export class ConfigurationState implements OnInit {
   selectedTopic: string = "";
   edible: boolean = false;
   isSaving: boolean = false;
+  saveErrorMessage: string | null = null;
   configCreation: boolean | null = null;
 
   topicForms = new Map<string, Map<string, FormGroup>>();
@@ -200,6 +202,14 @@ export class ConfigurationState implements OnInit {
             "Error saving configuration or reloading configuration state:",
             err
           );
+          // e.g. 409: the change would drop a topic section a listener still uses
+          this.saveErrorMessage =
+            err?.error?.detail ??
+            "Unexpected error occurred while saving the configuration.";
+          const element = document.getElementById("saveErrorModal");
+          if (element) {
+            Modal.getOrCreateInstance(element).show();
+          }
         },
       });
   }
