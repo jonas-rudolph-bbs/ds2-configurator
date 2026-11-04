@@ -1,31 +1,14 @@
 /**
- * Computes the backend API base URL from the frontend's own hostname.
+ * Base URL for backend API calls: always the frontend's own origin.
  *
- * On IDT, each module component gets its own subdomain under the
- * organisation's configured domain (e.g. "ds2ddtconfigurator.dtt.ds2.local"
- * for the frontend, "ds2ddtbackend.dtt.ds2.local" for the backend) — see
- * DS2's "Backend URL" guidance for module Helm charts.
+ * A proxy in front of the app routes the API paths (/configs/...,
+ * /profiling/profile/...) to the backend: nginx.conf on IDT, nginx.local.conf
+ * in Docker Compose, proxy.conf.json with ng serve.
  *
- * Locally (ng serve with proxy.conf.json, or Docker Compose with
- * nginx.local.conf) there's no such subdomain split — a proxy in front
- * already routes relative API calls to the backend on the same origin.
- * In that case this returns "" so existing relative-URL calls
- * (e.g. http.get('/configs/...')) keep working unchanged.
+ * Calling the backend's own IDT subdomain ("ds2ddtbackend.<domain>") instead
+ * made browsers block the requests (a second self-signed certificate,
+ * Firefox's local network access protection).
  */
 export function getApiBase(): string {
-  const hostname = window.location.hostname;
-  const frontendPrefix = 'ds2ddtconfigurator.';
-
-  if (!hostname.startsWith(frontendPrefix)) {
-    // Local dev / Docker Compose — rely on the existing proxy, no prefix needed.
-    return '';
-  }
-
-  const domain = hostname.replace(new RegExp(`^${frontendPrefix}`), '');
-  const protocol = window.location.protocol; // "https:" or "http:"
-  // Real IDT Ingress never has an explicit port (standard 80/443), but
-  // local testing setups might use a non-standard port — include it
-  // when present so this also works for those.
-  const port = window.location.port ? `:${window.location.port}` : '';
-  return `${protocol}//ds2ddtbackend.${domain}${port}`;
+  return '';
 }
